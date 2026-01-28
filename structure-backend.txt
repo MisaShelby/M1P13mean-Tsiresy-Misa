@@ -1,0 +1,31 @@
+backend/
+├── server.js
+├── package.json
+├── .env
+├── controllers/
+│   └── api.controller.js
+├── routes/
+│   └── api.routes.js
+├── middleware/
+│   └── error.middleware.js
+└── config/
+    └── db.config.js
+
+
+
+M1P13mean-Tsiresy-Misa/
+├── backend/                    # API Express
+│   ├── server.js              # Serveur principal
+│   ├── package.json           # Dépendances backend
+│   └── .env                   # Variables d'environnement
+├── frontend/                  # Application Angular
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── dashboard/     # Composant dashboard
+│   │   │   ├── services/      # Service API
+│   │   │   ├── app.*          # Composant principal
+│   │   │   └── app.config.ts  # Configuration
+│   │   ├── styles.css        # Styles globaux
+│   │   └── main.ts           # Point d'entrée
+│   └── package.json           # Dépendances frontend
+└── package.json              # Scripts globaux

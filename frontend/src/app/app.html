@@ -1,0 +1,59 @@
+<!-- Header -->
+<header class="bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-lg">
+    <nav class="container mx-auto px-2 py-2">
+        <div class="flex flex-col items-center text-center">
+            <!-- <h1 class="text-3xl md:text-4xl font-bold mb-2">Gestion Centre Commercial</h1> -->
+            <img
+                src="centre-commercial.png"
+                alt="Centre Commercial"
+                class="mt-2 h-16 md:h-20 object-contain"
+            />
+<!-- 
+            <div class="mt-4 flex items-center space-x-4">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-600">
+                    <span class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                    Frontend: Angular
+                </span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-600">
+                    <span class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                    Backend: Express.js
+                </span>
+            </div> -->
+        </div>
+    </nav>
+</header>
+
+<!-- Contenu principal -->
+<main class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
+    <div class="container mx-auto px-4">
+        <!-- Router outlet pour les composants routés -->
+        <router-outlet></router-outlet>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-gray-800 text-gray-300 py-8">
+    <div class="container mx-auto px-4">
+        <div class="text-center">
+            <h3 class="text-xl font-semibold mb-4">Développement Web Avancé - Projet MEAN</h3>
+            <div class="flex flex-wrap justify-center gap-6 mb-6">
+                <div class="text-center">
+                    <div class="font-bold text-blue-300 mb-1">Technologies</div>
+                    <div class="text-sm">Angular • Express • Angular • Tailwind CSS</div>
+                </div>
+                <div class="text-center">
+                    <div class="font-bold text-blue-300 mb-1">Architecture</div>
+                    <div class="text-sm">MEAN Stack • REST API</div>
+                </div>
+                <div class="text-center">
+                    <div class="font-bold text-blue-300 mb-1">Date</div>
+                    <div class="text-sm">{{ currentDate | date:'dd/MM/yyyy' }}</div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 pt-6">
+                <p class="text-sm">© 2026 - RAKOTONIRINA Andriantsiresy - ANDRIANARIVELO Misa Manohiaina - Projet académique M1P13</p>
+                <p class="text-xs text-gray-500 mt-2">Développement Web Avancé - IT University</p>
+            </div>
+        </div>
+    </div>
+</footer>
