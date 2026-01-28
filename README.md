@@ -1,0 +1,5 @@
+# npm run setup na npm run install-all (installation global)
+# npm start (demarrage backend and frontend)
+# http://mean-local.wip:4200 (lien projet)
+# npm install --save primeng (installation PrimeNg)
+# npm run create composant (creation auto d'un composant)
