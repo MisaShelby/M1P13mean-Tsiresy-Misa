@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3001;
 const mongoose = require('mongoose');
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:4200',
+  origin: process.env.FRONTEND_URL,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -17,7 +17,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/api/health', (req, res) => {
+app.get('/test', (req, res) => {
   const mongoStatus = mongoose.connection.readyState;
   let mongoMessage = '';
   
@@ -45,12 +45,7 @@ app.get('/api/health', (req, res) => {
 });
 const connectDB = require('./config/db.config'); 
 connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`✅ Serveur Express démarré sur le port ${PORT}`);
-    console.log(`🌐 Frontend: ${process.env.FRONTEND_URL}`);
-    console.log(`🗄️  MongoDB: ${mongoose.connection.readyState === 1 ? 'Connecté' : 'Non connecté'}`);
-  });
+  app.listen(PORT);
 }).catch((error) => {
-  console.error('❌ Impossible de démarrer le serveur:', error);
   process.exit(1);
 });

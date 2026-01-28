@@ -1,16 +1,19 @@
 {
-  "name": "m1p13mean-tsiresy-misa",
-  "version": "1.0.0",
-  "scripts": {
-    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
-    "backend": "cd backend && npm run dev",
-    "frontend": "cd frontend && ng serve",
-    "start": "concurrently \"npm run backend\" \"npm run frontend\" --names \"BACKEND,FRONTEND\" --prefix-colors \"blue,green\"",
-    "build": "cd frontend && ng build",
-    "test:api": "curl http://localhost:8888/api/health",
-    "tailwind:watch": "cd frontend && npx tailwindcss -i ./src/styles.css -o ./src/output.css --watch"
-  },
-  "devDependencies": {
-    "concurrently": "^8.2.2"
-  }
+    "name": "m1p13mean-tsiresy-misa",
+    "version": "1.0.0",
+    "scripts": {
+        "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+        "backend": "cd backend && npm run dev",
+        "frontend": "cd frontend && ng serve",
+        "start": "concurrently \"npm run backend\" \"npm run frontend\" --names \"BACKEND,FRONTEND\" --prefix-colors \"blue,green\"",
+        "build": "cd frontend && ng build",
+        "tailwind:watch": "cd frontend && npx tailwindcss -i ./src/styles.css -o ./src/output.css --watch"
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.2"
+    },
+    "dependencies": {
+        "primeicons": "^7.0.0",
+        "primeng": "^21.0.4"
+    }
 }
