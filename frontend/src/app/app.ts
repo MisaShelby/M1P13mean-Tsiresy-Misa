@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
-import { filter } from 'rxjs/operators';
+import { Component, OnInit } from '@angular/core';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 
+import { filter } from 'rxjs/operators';
 
 @Component({
     selector: 'app-root',
@@ -13,19 +13,22 @@ import { filter } from 'rxjs/operators';
 export class App {
     title = 'frontend';
     currentDate = new Date();
-    isLogin = false;
+    hideHeaderFooter = false;
 
-    constructor(private router: Router) {}
+    constructor(private router: Router) { }
 
     ngOnInit() {
         this.router.events.pipe(
             filter(event => event instanceof NavigationEnd)
         ).subscribe((event: any) => {
-            this.isLogin = event.url === '/login' || event.url === '/' || event.url === '';
+            this.hideHeaderFooter = event.url === '/login' ||
+                event.url === '/' ||
+                event.url === '' ||
+                event.url === '/inscription';
         });
     }
 
-    isLoginPage(): boolean {
-        return this.isLogin;
+    shouldShowHeaderFooter(): boolean {
+        return !this.hideHeaderFooter;
     }
 }

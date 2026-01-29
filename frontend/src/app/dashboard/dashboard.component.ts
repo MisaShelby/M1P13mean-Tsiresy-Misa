@@ -1,7 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+
+import { ApiService } from '../services/api.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ApiService } from '../services/api.service';
 
 @Component({
     selector: 'app-dashboard',
@@ -16,12 +17,12 @@ export class DashboardComponent implements OnInit {
     error: string = '';
 
     constructor(
-      private apiService: ApiService,
-      private cdr: ChangeDetectorRef
-    ) {}
+        private apiService: ApiService,
+        private cdr: ChangeDetectorRef
+    ) { }
 
     ngOnInit(): void {
-      this.checkBackendConnection();
+        this.checkBackendConnection();
     }
 
     checkBackendConnection(): void {
@@ -33,18 +34,18 @@ export class DashboardComponent implements OnInit {
 
         setTimeout(() => {
             this.apiService.checkHealth().subscribe({
-              next: (response) => {
-                  console.log('Réponse reçue:', response);
-                  this.healthStatus = response;
-                  this.loading = false;
-                  this.cdr.detectChanges();
-              },
-              error: (err) => {
-                  console.error('Erreur:', err);
-                  this.error = `❌ Impossible de se connecter au backend: ${err.message}`;
-                  this.loading = false;
-                  this.cdr.detectChanges();
-              }
+                next: (response) => {
+                    console.log('Réponse reçue:', response);
+                    this.healthStatus = response;
+                    this.loading = false;
+                    this.cdr.detectChanges();
+                },
+                error: (err) => {
+                    console.error('Erreur:', err);
+                    this.error = `❌ Impossible de se connecter au backend: ${err.message}`;
+                    this.loading = false;
+                    this.cdr.detectChanges();
+                }
             });
         }, 1000);
     }

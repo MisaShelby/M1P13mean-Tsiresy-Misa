@@ -2,28 +2,34 @@
     <div class="max-w-md w-full">
         <div class="bg-white rounded-xl shadow-lg p-8">
             <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
-              Dashboard Système
+                Dashboard Système
             </h2>
 
             <div *ngIf="loading" class="text-center py-8">
-              <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600"></div>
-              <p class="mt-4 text-gray-600">Vérification en cours...</p>
+                <div
+                    class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600">
+                </div>
+                <p class="mt-4 text-gray-600">Vérification en cours...</p>
             </div>
 
             <div *ngIf="!loading && healthStatus" class="text-center">
-                <div class="mb-8 p-4 rounded-lg" [ngClass]="{'bg-green-50': healthStatus.status === 'OK', 'bg-red-50': healthStatus.status !== 'OK'}">
-                    <h3 class="text-lg font-bold mb-2" [ngClass]="{'text-green-800': healthStatus.status === 'OK', 'text-red-800': healthStatus.status !== 'OK'}">
+                <div class="mb-8 p-4 rounded-lg"
+                    [ngClass]="{'bg-green-50': healthStatus.status === 'OK', 'bg-red-50': healthStatus.status !== 'OK'}">
+                    <h3 class="text-lg font-bold mb-2"
+                        [ngClass]="{'text-green-800': healthStatus.status === 'OK', 'text-red-800': healthStatus.status !== 'OK'}">
                         {{ healthStatus.status === 'OK' ? '✅ Backend Express' : '❌ Backend Express' }}
                     </h3>
                     <p class="text-gray-600">Port: {{ healthStatus.port || '8888' }}</p>
                     <p class="text-sm text-gray-500">{{ healthStatus.timestamp | date:'medium' }}</p>
                 </div>
 
-                <div class="mb-8 p-4 rounded-lg" [ngClass]="{'bg-green-50': healthStatus.mongoDB?.connected, 'bg-red-50': !healthStatus.mongoDB?.connected}">
-                    <h3 class="text-lg font-bold mb-2" [ngClass]="{'text-green-800': healthStatus.mongoDB?.connected, 'text-red-800': !healthStatus.mongoDB?.connected}">
+                <div class="mb-8 p-4 rounded-lg"
+                    [ngClass]="{'bg-green-50': healthStatus.mongoDB?.connected, 'bg-red-50': !healthStatus.mongoDB?.connected}">
+                    <h3 class="text-lg font-bold mb-2"
+                        [ngClass]="{'text-green-800': healthStatus.mongoDB?.connected, 'text-red-800': !healthStatus.mongoDB?.connected}">
                         {{ healthStatus.mongoDB?.connected ? '✅ MongoDB Connecté' : '❌ MongoDB Déconnecté' }}
                     </h3>
-                    
+
                     <div *ngIf="healthStatus.mongoDB?.connected" class="text-left">
                         <p class="text-gray-600">
                             <span class="font-medium">Base de données:</span> {{ healthStatus.mongoDB.database }}
@@ -35,10 +41,11 @@
                             <span class="font-medium">Statut:</span> {{ healthStatus.mongoDB.status }}
                         </p>
                     </div>
-                    
+
                     <div *ngIf="!healthStatus.mongoDB?.connected" class="text-left">
                         <p class="text-red-600">
-                            <span class="font-medium">Statut:</span> {{ healthStatus.mongoDB?.status || 'Non disponible' }}
+                            <span class="font-medium">Statut:</span> {{ healthStatus.mongoDB?.status || 'Non disponible'
+                            }}
                         </p>
                         <p class="text-sm text-gray-500 mt-2">
                             Vérifiez que MongoDB est démarré sur localhost:27017
@@ -46,43 +53,38 @@
                     </div>
                 </div>
 
-                <button 
-                  (click)="checkBackendConnection()"
-                  class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full"
-                >
-                  Rafraîchir le statut
+                <button (click)="checkBackendConnection()"
+                    class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full">
+                    Rafraîchir le statut
                 </button>
             </div>
 
             <div *ngIf="!loading && error && !healthStatus" class="text-center">
                 <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
                     </svg>
                 </div>
-              
+
                 <h3 class="text-xl font-bold text-red-800 mb-2">
-                  ❌ Erreur de connexion
+                    ❌ Erreur de connexion
                 </h3>
-              
+
                 <p class="text-gray-600 mb-4">
-                  {{ error }}
+                    {{ error }}
                 </p>
 
-                <button 
-                  (click)="checkBackendConnection()"
-                  class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                >
-                  Réessayer
+                <button (click)="checkBackendConnection()"
+                    class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                    Réessayer
                 </button>
             </div>
 
             <div *ngIf="!loading && !healthStatus && !error" class="text-center py-8">
-                <button 
-                  (click)="checkBackendConnection()"
-                  class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                >
-                  Tester les connexions
+                <button (click)="checkBackendConnection()"
+                    class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                    Tester les connexions
                 </button>
             </div>
         </div>

@@ -29,3 +29,8 @@ M1P13mean-Tsiresy-Misa/
 │   │   └── main.ts           # Point d'entrée
 │   └── package.json           # Dépendances frontend
 └── package.json              # Scripts globaux
+
+mango cluster :
+admin
+TSY_AIKO2.0
+mongodb+srv://admin:TSY_AIKO2.0@cluster0.rnslyex.mongodb.net/?appName=Cluster0
