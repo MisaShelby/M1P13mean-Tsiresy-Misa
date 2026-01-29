@@ -3,3 +3,4 @@
 # http://mean-local.wip:4200 (lien projet)
 # npm install --save primeng (installation PrimeNg)
 # npm run create composant (creation auto d'un composant)
+# http://mean-local.wip:4200\test (lien test)
