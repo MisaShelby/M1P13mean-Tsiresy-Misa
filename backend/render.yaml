@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: centre-commercial-api
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false  # À définir dans le dashboard Render
+      - key: FRONTEND_URL
+        sync: false  # À définir dans le dashboard Render
+    healthCheckPath: /api/health
+    autoDeploy: true
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
