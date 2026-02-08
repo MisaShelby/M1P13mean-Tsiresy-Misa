@@ -1,14 +1,14 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
-
 import { filter } from 'rxjs/operators';
+import { NotificationComponent } from './notification/notification.component';
 
 @Component({
     selector: 'app-root',
     standalone: true,
-    imports: [RouterOutlet, CommonModule],
-    templateUrl: './app.html'
+    imports: [RouterOutlet, CommonModule, NotificationComponent],
+    templateUrl: './app.html',
 })
 export class App {
     title = 'frontend';

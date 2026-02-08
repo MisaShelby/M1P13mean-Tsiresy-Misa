@@ -1,0 +1,140 @@
+<div class="flex items-center justify-center min-h-[calc(100vh-300px)] p-4">
+    <div class="w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <div class="bg-gradient-to-r from-primary-800 to-secondary-600 p-4 text-center">
+                <div class="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-2 flex items-center justify-center">
+                    <img src="imazy/5900478.png" alt="Logo" class="w-12 h-12 object-contain" />
+                </div>
+                <div class="text-center font-bold text-primary-100 mb-4">
+                    SHOPPING CENTER
+                </div>
+                <div class="flex items-center justify-center mt-2 space-x-2">
+                    <hr class="border-primary-200 w-40" />
+                    <span class="text-xs text-primary-50">S'authentifier</span>
+                    <hr class="border-primary-200 w-40" />
+                </div>
+            </div>
+
+            <div class="p-8 bg-gray-300">
+                <form (ngSubmit)="onSubmit()" class="space-y-4" #registerForm="ngForm">
+                    <div class="space-y-2">
+                        <label for="nom_complet" class="block text-sm font-semibold text-neutral-700">
+                            Nom complet :
+                        </label>
+                        <span class="p-input-icon-left w-full block">
+                            <i class="pi pi-user text-neutral-400"></i>
+                            <input type="text" id="nom_complet" name="nom_complet"
+                                [(ngModel)]="userData.nom_complet"
+                                required
+                                [ngClass]="{'border-red-500': hasError('nom_complet')}"
+                                class="w-full pl-10 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                                placeholder="votre nom" />
+                        </span>
+                        <div *ngIf="hasError('nom_complet')" class="text-red-500 text-xs mt-1">
+                            {{ getError('nom_complet') }}
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="email" class="block text-sm font-semibold text-neutral-700">
+                            Email :
+                        </label>
+                        <span class="p-input-icon-left w-full block">
+                            <i class="pi pi-envelope text-neutral-400"></i>
+                            <input type="email" id="email" name="email"
+                                [(ngModel)]="userData.email"
+                                required
+                                [ngClass]="{'border-red-500': hasError('email')}"
+                                class="w-full pl-10 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                                placeholder="votre.email@exemple.com" />
+                        </span>
+                        <div *ngIf="hasError('email')" class="text-red-500 text-xs mt-1">
+                            {{ getError('email') }}
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="telephone" class="block text-sm font-semibold text-neutral-700">
+                            Téléphone :
+                        </label>
+                        <span class="p-input-icon-left w-full block">
+                            <i class="pi pi-phone text-neutral-400"></i>
+                            <input type="tel" id="telephone" name="telephone"
+                                [(ngModel)]="userData.telephone"
+                                required
+                                [ngClass]="{'border-red-500': hasError('telephone')}"
+                                class="w-full pl-10 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                                placeholder="+261 34 00 000 00" />
+                        </span>
+                        <div *ngIf="hasError('telephone')" class="text-red-500 text-xs mt-1">
+                            {{ getError('telephone') }}
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="mdp" class="block text-sm font-semibold text-neutral-700">
+                            Mot de passe :
+                        </label>
+                        <span class="p-input-icon-left w-full block">
+                            <i class="pi pi-lock text-neutral-400"></i>
+                            <input type="password" id="mdp" name="mdp"
+                                [(ngModel)]="userData.mdp"
+                                required
+                                minlength="6"
+                                [ngClass]="{'border-red-500': hasError('mdp')}"
+                                class="w-full pl-10 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                                placeholder="••••••••" />
+                        </span>
+                        <div *ngIf="hasError('mdp')" class="text-red-500 text-xs mt-1">
+                            {{ getError('mdp') }}
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="confirmPassword" class="block text-sm font-semibold text-neutral-700">
+                            Confirmer le mot de passe :
+                        </label>
+                        <span class="p-input-icon-left w-full block">
+                            <i class="pi pi-lock text-neutral-400"></i>
+                            <input type="password" id="confirmPassword" name="confirmPassword"
+                                [(ngModel)]="userData.confirmPassword"
+                                required
+                                [ngClass]="{'border-red-500': hasError('confirmPassword')}"
+                                class="w-full pl-10 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                                placeholder="••••••••" />
+                        </span>
+                        <div *ngIf="hasError('confirmPassword')" class="text-red-500 text-xs mt-1">
+                            {{ getError('confirmPassword') }}
+                        </div>
+                    </div>
+
+                    <button type="submit" [disabled]="isLoading"
+                        class="w-full bg-gradient-to-r from-primary-800 to-secondary-600 hover:from-primary-600 hover:to-secondary-600 text-white font-semibold py-2 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="pi pi-user-plus mr-2"></i>
+                        <span *ngIf="!isLoading">S'inscrire</span>
+                        <span *ngIf="isLoading">Inscription en cours...</span>
+                    </button>
+                </form>
+
+                <div class="mt-6 text-center pb-2">
+                    <p class="text-neutral-600 text-sm">
+                        Vous avez déjà un compte ?
+                        <a routerLink="/login"
+                            class="text-primary-500 hover:text-primary-600 font-semibold transition-colors hover:underline">
+                            Se connecter
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 text-center">
+            <div class="inline-flex items-center px-4 py-2 bg-warning-50 border border-warning-200 rounded-lg">
+                <i class="pi pi-exclamation-triangle text-warning-600 mr-2"></i>
+                <span class="text-warning-800 text-sm font-medium">
+                    Accès réservé aux gestionnaires du centre commercial
+                </span>
+            </div>
+        </div>
+    </div>
+</div>

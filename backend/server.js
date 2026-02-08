@@ -6,6 +6,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT;
 const mongoose = require('mongoose');
+const authRoutes = require('./routes/routes');
 
 app.use(cors({
       origin: process.env.FRONTEND_URL,
@@ -16,7 +17,7 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use('/auth', authRoutes);
 app.get('/test', (req, res) => {
       const mongoStatus = mongoose.connection.readyState;
       let mongoMessage = '';

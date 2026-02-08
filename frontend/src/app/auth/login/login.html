@@ -14,87 +14,81 @@
                     <hr class="border-primary-200 w-40" />
                 </div>
             </div>
-
             <div class="p-8 bg-gray-300">
-                <form class="space-y-4">
-                    <div class="space-y-2">
-                        <label for="fullName" class="block text-sm font-semibold text-neutral-700">
-                            Nom complet :
-                        </label>
-                        <span class="p-input-icon-left w-full block">
-                            <i class="pi pi-user text-neutral-400"></i>
-                            <input type="text" id="fullName" pInputText
-                                class="w-full pl-10 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                                placeholder="votre nom" />
-                        </span>
-                    </div>
+                <div *ngIf="fieldErrors['email'] || fieldErrors['mdp']" 
+                     class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+                    <div *ngIf="fieldErrors['email']">{{ fieldErrors['email'] }}</div>
+                    <div *ngIf="fieldErrors['mdp']">{{ fieldErrors['mdp'] }}</div>
+                </div>
 
+                <form (ngSubmit)="onSubmit()" class="space-y-4" #loginForm="ngForm">
                     <div class="space-y-2">
                         <label for="email" class="block text-sm font-semibold text-neutral-700">
                             Email :
                         </label>
                         <span class="p-input-icon-left w-full block">
                             <i class="pi pi-envelope text-neutral-400"></i>
-                            <input type="email" id="email" pInputText
+                            <input type="email" id="email" name="email"
+                                [(ngModel)]="credentials.email"
+                                required
+                                [ngClass]="{'border-red-500': hasError('email')}"
                                 class="w-full pl-10 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                                 placeholder="votre.email@exemple.com" />
                         </span>
                     </div>
 
                     <div class="space-y-2">
-                        <label for="phone" class="block text-sm font-semibold text-neutral-700">
-                            Téléphone :
-                        </label>
-                        <span class="p-input-icon-left w-full block">
-                            <i class="pi pi-phone text-neutral-400"></i>
-                            <input type="tel" id="phone" pInputText
-                                class="w-full pl-10 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                                placeholder="+261 34 00 000 00" />
-                        </span>
-                    </div>
-
-                    <div class="space-y-2">
-                        <label for="password" class="block text-sm font-semibold text-neutral-700">
+                        <label for="mdp" class="block text-sm font-semibold text-neutral-700">
                             Mot de passe :
                         </label>
                         <span class="p-input-icon-left w-full block">
                             <i class="pi pi-lock text-neutral-400"></i>
-                            <input type="password" id="password" pInputText
+                            <input type="password" id="mdp" name="mdp"
+                                [(ngModel)]="credentials.mdp"
+                                required
+                                [ngClass]="{'border-red-500': hasError('mdp')}"
                                 class="w-full pl-10 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                                 placeholder="••••••••" />
                         </span>
                     </div>
 
-                    <div class="space-y-2">
-                        <label for="confirmPassword" class="block text-sm font-semibold text-neutral-700">
-                            Confirmer le mot de passe :
-                        </label>
-                        <span class="p-input-icon-left w-full block">
-                            <i class="pi pi-lock text-neutral-400"></i>
-                            <input type="password" id="confirmPassword" pInputText
-                                class="w-full pl-10 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                                placeholder="••••••••" />
-                        </span>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="rememberMe" name="rememberMe"
+                                [(ngModel)]="credentials.rememberMe"
+                                class="w-4 h-4 text-primary-500 border-neutral-300 rounded focus:ring-primary-500 cursor-pointer" />
+                            <label for="rememberMe" class="ml-2 text-sm text-neutral-600 cursor-pointer">
+                                Se souvenir de moi
+                            </label>
+                        </div>
+                        <a href="#" class="text-sm text-primary-500 hover:text-primary-600 font-medium transition-colors">
+                            Mot de passe oublié ?
+                        </a>
                     </div>
-                    <button type="submit"
-                        class="w-full bg-gradient-to-r from-primary-800 to-secondary-600 hover:from-primary-600 hover:to-secondary-600 text-white font-semibold py-2 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center">
-                        <i class="pi pi-user-plus mr-2"></i>
-                        S'inscrire
+
+                    <!-- Bouton de connexion -->
+                    <button type="submit" [disabled]="isLoading"
+                        class="w-full bg-gradient-to-r from-primary-800 to-secondary-600 hover:from-primary-600 hover:to-secondary-600 text-white font-semibold py-2 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="pi pi-sign-in mr-2"></i>
+                        <span *ngIf="!isLoading">Se connecter</span>
+                        <span *ngIf="isLoading">Connexion en cours...</span>
                     </button>
                 </form>
 
+                <!-- Lien vers inscription -->
                 <div class="mt-6 text-center pb-2">
                     <p class="text-neutral-600 text-sm">
-                        Vous avez déjà un compte ?
-                        <a routerLink="/login" href="#"
+                        Vous n'avez pas de compte ?
+                        <a routerLink="/inscription"
                             class="text-primary-500 hover:text-primary-600 font-semibold transition-colors hover:underline">
-                            Se connecter
+                            Créer un compte
                         </a>
                     </p>
                 </div>
             </div>
         </div>
 
+        <!-- Message d'avertissement -->
         <div class="mt-6 text-center">
             <div class="inline-flex items-center px-4 py-2 bg-warning-50 border border-warning-200 rounded-lg">
                 <i class="pi pi-exclamation-triangle text-warning-600 mr-2"></i>
