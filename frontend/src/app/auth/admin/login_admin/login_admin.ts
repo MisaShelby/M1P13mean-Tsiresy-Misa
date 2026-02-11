@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { AuthAdminService, LoginAdminData } from '../auth_admin.service';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { NotificationService } from '../../../services/notification.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login-admin',
-  imports: [RouterLink, FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './login_admin.html',
 })
 export class LoginAdmin {
