@@ -1,0 +1,84 @@
+<div class="flex items-center justify-center min-h-[calc(100vh-300px)] p-4">
+    <div class="w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <div class="bg-gradient-to-r from-primary-800 to-secondary-600 p-4 text-center">
+                <div class="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-2 flex items-center justify-center">
+                    <img src="imazy/5900478.png" alt="Logo" class="w-12 h-12 object-contain" />
+                </div>
+                <div class="text-center font-bold text-primary-100 mb-4">
+                    SHOPPING CENTER
+                </div>
+                <div class="flex items-center justify-center mt-2 space-x-2">
+                    <hr class="border-primary-200 w-40" />
+                    <span class="text-xs text-primary-50">S'authentifier</span>
+                    <hr class="border-primary-200 w-40" />
+                </div>
+            </div>
+
+            <div class="p-8 bg-gray-300">
+
+                <div *ngIf="fieldErrors['nom_boutique'] || fieldErrors['mdp']"
+                    class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+                    <div *ngIf="fieldErrors['nom_boutique']">{{ fieldErrors['nom_boutique'] }}</div>
+                    <div *ngIf="fieldErrors['mdp']">{{ fieldErrors['mdp'] }}</div>
+                </div>
+
+                <form (ngSubmit)="onSubmit()" class="space-y-4" #loginForm="ngForm">
+
+                    <div class="space-y-2">
+                        <label for="nom_boutique" class="block text-sm font-semibold text-neutral-700">
+                            Nom du boutique :
+                        </label>
+                        <span class="p-input-icon-left w-full block">
+                            <i class="pi pi-user text-neutral-400"></i>
+                            <input type="text" id="nom_boutique" name="nom_boutique"
+                                [(ngModel)]="credentials.nom_boutique"
+                                required
+                                [ngClass]="{'border-red-500': hasError('nom_boutique')}"
+                                class="w-full pl-10 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                                placeholder="Nom du boutique" />
+                        </span>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="mdp" class="block text-sm font-semibold text-neutral-700">
+                            Mot de passe :
+                        </label>
+                        <span class="p-input-icon-left w-full block">
+                            <i class="pi pi-lock text-neutral-400"></i>
+                            <input type="password" id="mdp" name="mdp"
+                                [(ngModel)]="credentials.mdp"
+                                required
+                                [ngClass]="{'border-red-500': hasError('mdp')}"
+                                class="w-full pl-10 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                                placeholder="••••••••" />
+                        </span>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <a href="#" class="text-sm text-primary-500 hover:text-primary-600 font-medium transition-colors">
+                            Mot de passe oublié ?
+                        </a>
+                    </div>
+
+                    <button type="submit" [disabled]="isLoading"
+                        class="w-full bg-gradient-to-r from-primary-800 to-secondary-600 hover:from-primary-600 hover:to-secondary-600 text-white font-semibold py-2 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="pi pi-sign-in mr-2"></i>
+                        <span *ngIf="!isLoading">Se connecter</span>
+                        <span *ngIf="isLoading">Connexion en cours...</span>
+                    </button>
+                </form>
+
+                <div class="mt-6 text-center pb-2">
+                    <p class="text-neutral-600 text-sm">
+                        Vous n'avez pas de compte ?
+                        <a routerLink="/inscription-boutique"
+                            class="text-primary-500 hover:text-primary-600 font-semibold transition-colors hover:underline">
+                            Créer un compte
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

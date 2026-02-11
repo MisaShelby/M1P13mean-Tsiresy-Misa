@@ -10,7 +10,7 @@
                 </div>
                 <div class="flex items-center justify-center mt-2 space-x-2">
                     <hr class="border-primary-200 w-40" />
-                    <span class="text-xs text-primary-50">S'authentifier</span>
+                    <span class="text-xs text-primary-50">Demande d'inscription</span>
                     <hr class="border-primary-200 w-40" />
                 </div>
             </div>
@@ -18,20 +18,20 @@
             <div class="p-8 bg-gray-300">
                 <form (ngSubmit)="onSubmit()" class="space-y-4" #registerForm="ngForm">
                     <div class="space-y-2">
-                        <label for="nom_complet" class="block text-sm font-semibold text-neutral-700">
-                            Nom complet :
+                        <label for="nom_boutique" class="block text-sm font-semibold text-neutral-700">
+                            Nom du boutique :
                         </label>
                         <span class="p-input-icon-left w-full block">
                             <i class="pi pi-user text-neutral-400"></i>
-                            <input type="text" id="nom_complet" name="nom_complet"
-                                [(ngModel)]="userData.nom_complet"
+                            <input type="text" id="nom_boutique" name="nom_boutique"
+                                [(ngModel)]="boutiqueData.nom_boutique"
                                 required
-                                [ngClass]="{'border-red-500': hasError('nom_complet')}"
+                                [ngClass]="{'border-red-500': hasError('nom_boutique')}"
                                 class="w-full pl-10 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                                placeholder="votre nom" />
+                                placeholder="nom du boutique" />
                         </span>
-                        <div *ngIf="hasError('nom_complet')" class="text-red-500 text-xs mt-1">
-                            {{ getError('nom_complet') }}
+                        <div *ngIf="hasError('nom_boutique')" class="text-red-500 text-xs mt-1">
+                            {{ getError('nom_boutique') }}
                         </div>
                     </div>
 
@@ -42,7 +42,7 @@
                         <span class="p-input-icon-left w-full block">
                             <i class="pi pi-envelope text-neutral-400"></i>
                             <input type="email" id="email" name="email"
-                                [(ngModel)]="userData.email"
+                                [(ngModel)]="boutiqueData.email"
                                 required
                                 [ngClass]="{'border-red-500': hasError('email')}"
                                 class="w-full pl-10 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
@@ -54,20 +54,57 @@
                     </div>
 
                     <div class="space-y-2">
-                        <label for="telephone" class="block text-sm font-semibold text-neutral-700">
-                            Téléphone :
+                        <label for="nom_gerant" class="block text-sm font-semibold text-neutral-700">
+                            Nom du gérant :
+                        </label>
+                        <span class="p-input-icon-left w-full block">
+                            <i class="pi pi-user text-neutral-400"></i>
+                            <input type="text" id="nom_gerant" name="nom_gerant"
+                                [(ngModel)]="boutiqueData.nom_gerant"
+                                required
+                                [ngClass]="{'border-red-500': hasError('nom_gerant')}"
+                                class="w-full pl-10 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                                placeholder="Nom du gérant" />
+                        </span>
+                        <div *ngIf="hasError('nom_gerant')" class="text-red-500 text-xs mt-1">
+                            {{ getError('nom_gerant') }}
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="telephone_gerant" class="block text-sm font-semibold text-neutral-700">
+                            Téléphone du gérant :
                         </label>
                         <span class="p-input-icon-left w-full block">
                             <i class="pi pi-phone text-neutral-400"></i>
-                            <input type="tel" id="telephone" name="telephone"
-                                [(ngModel)]="userData.telephone"
+                            <input type="tel" id="telephone_gerant" name="telephone_gerant"
+                                [(ngModel)]="boutiqueData.telephone_gerant"
                                 required
-                                [ngClass]="{'border-red-500': hasError('telephone')}"
+                                [ngClass]="{'border-red-500': hasError('telephone_gerant')}"
                                 class="w-full pl-10 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                                 placeholder="+261 34 00 000 00" />
                         </span>
-                        <div *ngIf="hasError('telephone')" class="text-red-500 text-xs mt-1">
-                            {{ getError('telephone') }}
+                        <div *ngIf="hasError('telephone_gerant')" class="text-red-500 text-xs mt-1">
+                            {{ getError('telephone_gerant') }}
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="photo" class="block text-sm font-semibold text-neutral-700">
+                            Photo du boutique :
+                        </label>
+                        <span class="p-input-icon-left w-full block relative">
+                            <i class="pi pi-image text-neutral-400"></i>
+                            <input type="file" id="photo" (change)="onFileSelected($event)"
+                                accept="image/*"
+                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                            <div class="w-full pl-10 py-2 border border-neutral-300 rounded-lg bg-white text-neutral-500 flex items-center justify-between">
+                                <span *ngIf="!boutiqueData.photoPreview">Choisir une photo...</span>
+                                <span *ngIf="boutiqueData.photoPreview" class="truncate">{{ boutiqueData.photoPreview }}</span>
+                            </div>
+                        </span>
+                        <div *ngIf="boutiqueData.photoPreview" class="mt-2">
+                            <img [src]="boutiqueData.photoPreview" alt="Aperçu photo" class="w-20 h-20 object-cover rounded-md" />
                         </div>
                     </div>
 
@@ -78,7 +115,7 @@
                         <span class="p-input-icon-left w-full block">
                             <i class="pi pi-lock text-neutral-400"></i>
                             <input type="password" id="mdp" name="mdp"
-                                [(ngModel)]="userData.mdp"
+                                [(ngModel)]="boutiqueData.mdp"
                                 required
                                 minlength="6"
                                 [ngClass]="{'border-red-500': hasError('mdp')}"
@@ -91,28 +128,28 @@
                     </div>
 
                     <div class="space-y-2">
-                        <label for="confirmPassword" class="block text-sm font-semibold text-neutral-700">
+                        <label for="confirmMdp" class="block text-sm font-semibold text-neutral-700">
                             Confirmer le mot de passe :
                         </label>
                         <span class="p-input-icon-left w-full block">
                             <i class="pi pi-lock text-neutral-400"></i>
-                            <input type="password" id="confirmPassword" name="confirmPassword"
-                                [(ngModel)]="userData.confirmPassword"
+                            <input type="password" id="confirmMdp" name="confirmMdp"
+                                [(ngModel)]="boutiqueData.confirmMdp"
                                 required
-                                [ngClass]="{'border-red-500': hasError('confirmPassword')}"
+                                [ngClass]="{'border-red-500': hasError('confirmMdp')}"
                                 class="w-full pl-10 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                                 placeholder="••••••••" />
                         </span>
-                        <div *ngIf="hasError('confirmPassword')" class="text-red-500 text-xs mt-1">
-                            {{ getError('confirmPassword') }}
+                        <div *ngIf="hasError('confirmMdp')" class="text-red-500 text-xs mt-1">
+                            {{ getError('confirmMdp') }}
                         </div>
                     </div>
 
                     <button type="submit" [disabled]="isLoading"
                         class="w-full bg-gradient-to-r from-primary-800 to-secondary-600 hover:from-primary-600 hover:to-secondary-600 text-white font-semibold py-2 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
                         <i class="pi pi-user-plus mr-2"></i>
-                        <span *ngIf="!isLoading">S'inscrire</span>
-                        <span *ngIf="isLoading">Inscription en cours...</span>
+                        <span *ngIf="!isLoading">Demande d'inscription</span>
+                        <span *ngIf="isLoading">Demande en cours...</span>
                     </button>
                 </form>
 
@@ -132,7 +169,7 @@
             <div class="inline-flex items-center px-4 py-2 bg-warning-50 border border-warning-200 rounded-lg">
                 <i class="pi pi-exclamation-triangle text-warning-600 mr-2"></i>
                 <span class="text-warning-800 text-sm font-medium">
-                    Accès réservé aux gestionnaires du centre commercial
+                    Ceci est une formulaire d'inscription à valider par l'administrateur du centre commercial
                 </span>
             </div>
         </div>

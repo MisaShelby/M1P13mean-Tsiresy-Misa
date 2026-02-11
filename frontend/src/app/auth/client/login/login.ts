@@ -1,22 +1,20 @@
 import { Component } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { AuthService, RegisterData } from '../../auth/auth.service';
 import { CommonModule } from '@angular/common';
-import { NotificationService } from '../../services/notification.service';
+import { AuthService, LoginData } from '../auth.service';
+import { NotificationService } from '../../../services/notification.service';
 
 @Component({
-    selector: 'app-inscription',
+    selector: 'app-login',
     imports: [RouterLink, FormsModule, CommonModule],
-    templateUrl: './inscription.html',
+    templateUrl: './login.html',
 })
-export class Inscription {
-    userData: RegisterData = {
-        nom_complet: '',
+export class Login {
+    credentials: LoginData = {
         email: '',
-        telephone: '',
         mdp: '',
-        confirmPassword: ''
+        rememberMe: false
     };
 
     isLoading = false;
@@ -29,41 +27,37 @@ export class Inscription {
     ) { }
 
     onSubmit() {
-        if (this.userData.mdp !== this.userData.confirmPassword) {
-            this.notification.error('Les mots de passe ne correspondent pas');
-            this.fieldErrors['confirmPassword'] = 'Les mots de passe ne correspondent pas';
-            return;
-        }
-
         this.isLoading = true;
         this.fieldErrors = {};
 
-        this.authService.register(this.userData).subscribe({
+        this.authService.login(this.credentials).subscribe({
             next: (response) => {
                 if (response.success) {
                     this.notification.success(
-                        'Inscription réussie ! Redirection vers la connexion...',
+                        'Connexion réussie ! Redirection vers le dashboard...',
                         'Bienvenue'
                     );
 
-                    setTimeout(() => this.router.navigate(['/login']), 2000);
+                    setTimeout(() => {
+                        this.router.navigate(['/test']);
+                    }, 1500);
                 } else {
                     if (response.errors) {
                         response.errors.forEach(error => {
                             this.fieldErrors[error.field] = error.message;
                         });
-                        this.notification.warning('Veuillez corriger les erreurs dans le formulaire');
-                    } else {
-                        this.notification.error(response.message || 'Erreur lors de l\'inscription');
                     }
+                    
+                    this.notification.error(
+                        response.message || 'Échec de la connexion',
+                        'Connexion échouée'
+                    );
                 }
             },
             error: (error) => {
-                console.error('Erreur:', error);
-
                 const errorMessages: { [key: number]: string } = {
-                    400: 'Données invalides. Vérifiez vos informations.',
-                    409: 'Un compte existe déjà avec cet email ou téléphone.',
+                    401: 'Email ou mot de passe incorrect',
+                    400: 'Données invalides',
                     500: 'Erreur serveur. Veuillez réessayer plus tard.',
                 };
 

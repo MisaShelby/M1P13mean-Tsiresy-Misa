@@ -26,10 +26,11 @@
                             }
                           ],
                           "styles": [
-                              "https://cdn.jsdelivr.net/npm/primeicons@latest/primeicons.css",
-                              "https://cdn.jsdelivr.net/npm/primeng@latest/resources/themes/lara-light-blue/theme.css",
-                              "https://cdn.jsdelivr.net/npm/primeng@latest/resources/primeng.min.css",
-                              "src/styles.css"
+                            "src/material-theme.scss",
+                            "https://cdn.jsdelivr.net/npm/primeicons@latest/primeicons.css",
+                            "https://cdn.jsdelivr.net/npm/primeng@latest/resources/themes/lara-light-blue/theme.css",
+                            "https://cdn.jsdelivr.net/npm/primeng@latest/resources/primeng.min.css",
+                            "src/styles.css"
                           ]
                     },
                 "configurations": {

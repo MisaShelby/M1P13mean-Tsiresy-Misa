@@ -1,24 +1,28 @@
-const { execSync } = require('child_process'); //afaka miexecuter commande systeme ( ng g c)
+const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
 const args = process.argv.slice(2);
-const componentName = args[0];
 
-if (!componentName) {
-      console.error('Usage: node create-component.js <component-name>');
-      process.exit(1);
+if (args.length < 2) {
+  console.error('Usage: node create-component.js <path/to/component> <component-name>');
+  console.error('Example: node create-component.js admin/users user-list');
+  process.exit(1);
 }
 
-const componentPath = `src/app/${componentName}`;
+const componentName = args[args.length - 1];
+const componentPath = args.slice(0, -1).join('/');
 
-if (fs.existsSync(componentPath)) {
-      console.error(`Le composant "${componentName}" existe déjà dans ${componentPath}`);
-      process.exit(1);
+const fullComponentPath = path.join('src', 'app', componentPath, componentName);
+
+if (fs.existsSync(fullComponentPath)) {
+  console.error(`Le composant "${componentName}" existe déjà dans ${fullComponentPath}`);
+  process.exit(1);
 }
 
-const command = `ng g c ${componentName} --path=${componentPath} --style=none --flat`;
+const command = `ng g c ${componentPath}/${componentName} --style=none`;
 
 console.log(`Exécution: ${command}`);
 execSync(command, { stdio: 'inherit' });
-console.log(`Composant "${componentName}" créé avec succès ✅ `);
+
+console.log(`Composant "${componentName}" créé avec succès dans ${componentPath}/${componentName} ✅`);

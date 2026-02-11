@@ -1,27 +1,25 @@
 import { Component } from '@angular/core';
+import { AuthBoutiqueService, LoginBoutiqueData } from '../auth_boutique.service';
 import { Router, RouterLink } from '@angular/router';
+import { NotificationService } from '../../../services/notification.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { AuthService, LoginData } from '../../auth/auth.service';
-import { NotificationService } from '../../services/notification.service';
 
 @Component({
-    selector: 'app-login',
+    selector: 'app-login-boutique',
     imports: [RouterLink, FormsModule, CommonModule],
-    templateUrl: './login.html',
+    templateUrl: './login_boutique.html',
 })
-export class Login {
-    credentials: LoginData = {
-        email: '',
-        mdp: '',
-        rememberMe: false
+export class LoginBoutique {
+    credentials: LoginBoutiqueData = {
+        nom_boutique: '',
+        mdp: ''
     };
-
     isLoading = false;
     fieldErrors: { [key: string]: string } = {};
 
     constructor(
-        private authService: AuthService,
+        private authService: AuthBoutiqueService,
         private router: Router,
         private notification: NotificationService
     ) { }
@@ -39,7 +37,7 @@ export class Login {
                     );
 
                     setTimeout(() => {
-                        this.router.navigate(['/dashboard']);
+                        this.router.navigate(['/test']);
                     }, 1500);
                 } else {
                     if (response.errors) {
@@ -56,7 +54,7 @@ export class Login {
             },
             error: (error) => {
                 const errorMessages: { [key: number]: string } = {
-                    401: 'Email ou mot de passe incorrect',
+                    401: 'Nom du boutique ou mot de passe incorrect',
                     400: 'Données invalides',
                     500: 'Erreur serveur. Veuillez réessayer plus tard.',
                 };
