@@ -95,17 +95,12 @@ export class InscriptionBoutique {
 
         const file = input.files[0];
 
-        // Option 1 : convertir en base64 pour prévisualisation et envoi
         const reader = new FileReader();
         reader.onload = () => {
-            this.boutiqueData.photo = reader.result as string; // Base64
+            this.boutiqueData.photo = reader.result as string;
             this.boutiqueData.photoPreview = reader.result as string;
         };
         reader.readAsDataURL(file);
-
-        // Option 2 : si tu veux envoyer FormData côté API (recommandé pour fichiers volumineux)
-        // this.boutiqueFormData = new FormData();
-        // this.boutiqueFormData.append('photo', file);
     }
 
 }

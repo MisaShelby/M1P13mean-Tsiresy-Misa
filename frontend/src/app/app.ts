@@ -1,14 +1,15 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, HostListener, OnInit } from '@angular/core';
-import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { filter } from 'rxjs/operators';
-import { NotificationComponent } from './notification/notification.component';
+import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
+
 import { MatIconModule } from '@angular/material/icon';
+import { NotificationComponent } from './notification/notification.component';
+import { filter } from 'rxjs/operators';
 
 @Component({
     selector: 'app-root',
     standalone: true,
-    imports: [RouterOutlet, CommonModule, NotificationComponent, MatIconModule],
+    imports: [RouterOutlet, CommonModule, NotificationComponent, MatIconModule, RouterModule],
     templateUrl: './app.html',
 })
 export class App {
@@ -40,8 +41,8 @@ export class App {
     }
 
     isAccueilGeneral(): boolean {
-    return this.router.url === '/accueil-general';
-}
+        return this.router.url === '/accueil-general';
+    }
 
 
     shouldShowHeaderFooter(): boolean {

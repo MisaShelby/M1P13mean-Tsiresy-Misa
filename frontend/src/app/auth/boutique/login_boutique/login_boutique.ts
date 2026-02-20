@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
 import { AuthBoutiqueService, LoginBoutiqueData } from '../auth_boutique.service';
 import { Router, RouterLink } from '@angular/router';
-import { NotificationService } from '../../../services/notification.service';
-import { FormsModule } from '@angular/forms';
+
 import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NotificationService } from '../../../services/notification.service';
 
 @Component({
     selector: 'app-login-boutique',
@@ -45,7 +46,7 @@ export class LoginBoutique {
                             this.fieldErrors[error.field] = error.message;
                         });
                     }
-                    
+
                     this.notification.error(
                         response.message || 'Échec de la connexion',
                         'Connexion échouée'
@@ -53,16 +54,42 @@ export class LoginBoutique {
                 }
             },
             error: (error) => {
-                const errorMessages: { [key: number]: string } = {
-                    401: 'Nom du boutique ou mot de passe incorrect',
-                    400: 'Données invalides',
-                    500: 'Erreur serveur. Veuillez réessayer plus tard.',
-                };
+                if (error.status === 403 && error.error?.code === 'ACCOUNT_NOT_VALIDATED') {
+                    this.notification.warning(
+                        error.error.message || 'Votre compte n\'a pas encore été validé par l\'administration.',
+                        'Compte non validé',
+                    );
+                }
+                else if (error.status === 401) {
+                    this.notification.error(
+                        'Nom du boutique ou mot de passe incorrect',
+                        'Authentification échouée'
+                    );
+                }
+                else if (error.status === 400) {
+                    this.notification.warning(
+                        'Veuillez vérifier les informations saisies',
+                        'Données invalides'
+                    );
 
-                this.notification.error(
-                    errorMessages[error.status] || 'Erreur de connexion',
-                    'Erreur'
-                );
+                    if (error.error?.errors) {
+                        error.error.errors.forEach((err: any) => {
+                            this.fieldErrors[err.field] = err.message;
+                        });
+                    }
+                }
+                else if (error.status === 500) {
+                    this.notification.error(
+                        'Erreur serveur. Veuillez réessayer plus tard.',
+                        'Erreur interne'
+                    );
+                }
+                else {
+                    this.notification.error(
+                        error.error?.message || 'Une erreur est survenue lors de la connexion',
+                        'Erreur'
+                    );
+                }
             },
             complete: () => {
                 this.isLoading = false;
