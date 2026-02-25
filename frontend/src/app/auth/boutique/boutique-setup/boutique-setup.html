@@ -1,0 +1,154 @@
+<div class="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+
+  <!-- Header -->
+  <div class="w-full max-w-3xl mb-6 text-center">
+    <div class="bg-gradient-to-r from-primary-800 to-secondary-600 rounded-2xl shadow-xl p-6 text-white">
+      <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full mx-auto mb-3 flex items-center justify-center">
+        <img src="imazy/5900478.png" alt="Logo" class="w-10 h-10 object-contain" />
+      </div>
+      <h1 class="text-2xl font-bold">Bienvenue ! Configuration initiale</h1>
+      <p class="text-primary-100 mt-1 text-sm">
+        Avant d'accéder au dashboard, veuillez choisir votre plan d'abonnement et effectuer votre premier paiement.
+      </p>
+
+      <!-- Stepper -->
+      <div class="flex items-center justify-center mt-4 space-x-4">
+        <div class="flex items-center space-x-2">
+          <div [class]="step === 'choose'
+            ? 'w-8 h-8 rounded-full bg-white text-primary-800 font-bold flex items-center justify-center text-sm'
+            : 'w-8 h-8 rounded-full bg-primary-600 border-2 border-white text-white font-bold flex items-center justify-center text-sm'">
+            1
+          </div>
+          <span class="text-sm font-medium">Choisir le plan</span>
+        </div>
+        <div class="w-12 h-0.5 bg-primary-400"></div>
+        <div class="flex items-center space-x-2">
+          <div [class]="step === 'confirm'
+            ? 'w-8 h-8 rounded-full bg-white text-primary-800 font-bold flex items-center justify-center text-sm'
+            : 'w-8 h-8 rounded-full bg-primary-600 border-2 border-white text-white font-bold flex items-center justify-center text-sm'">
+            2
+          </div>
+          <span class="text-sm font-medium">Payer le 1er mois</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 1 : Choisir le type de commission -->
+  <div *ngIf="step === 'choose'" class="w-full max-w-3xl">
+    <h2 class="text-lg font-bold text-neutral-700 mb-4 text-center">Sélectionnez votre plan d'abonnement</h2>
+
+    <!-- Loading -->
+    <div *ngIf="isLoadingTypes" class="flex justify-center py-12">
+      <div class="w-10 h-10 border-4 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+
+    <!-- Plans -->
+    <div *ngIf="!isLoadingTypes" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div *ngFor="let plan of commissionTypes"
+        (click)="selectType(plan)"
+        class="bg-white rounded-2xl shadow-md p-6 cursor-pointer border-2 border-transparent
+               hover:border-primary-500 hover:shadow-xl transition-all duration-200 flex flex-col justify-between">
+        <div>
+          <div class="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center mb-3">
+            <svg class="w-5 h-5 text-primary-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0
+                   3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138
+                   3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438
+                   3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138
+                   3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0
+                   3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138
+                   3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438
+                   3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-neutral-800">{{ plan.nom }}</h3>
+          <p *ngIf="plan.description" class="text-sm text-neutral-500 mt-1">{{ plan.description }}</p>
+        </div>
+        <div class="mt-4 flex items-center justify-between">
+          <span class="text-2xl font-extrabold text-primary-700">{{ plan.tarif }} <span class="text-sm font-normal text-neutral-500">Ar / mois</span></span>
+          <span class="text-xs bg-primary-100 text-primary-700 font-semibold px-3 py-1 rounded-full">Choisir</span>
+        </div>
+      </div>
+
+      <!-- Aucun plan -->
+      <div *ngIf="commissionTypes.length === 0" class="col-span-3 text-center text-neutral-500 py-10">
+        Aucun plan disponible pour le moment. Contactez l'administrateur.
+      </div>
+    </div>
+
+    <div class="mt-6 text-center">
+      <button (click)="logout()" class="text-sm text-red-500 hover:underline">Se déconnecter</button>
+    </div>
+  </div>
+
+  <!-- STEP 2 : Confirmation & Paiement -->
+  <div *ngIf="step === 'confirm' && selectedType" class="w-full max-w-md">
+    <div class="bg-white rounded-2xl shadow-xl p-8">
+      <h2 class="text-xl font-bold text-neutral-800 mb-2 text-center">Confirmation du paiement</h2>
+      <p class="text-sm text-neutral-500 text-center mb-6">Récapitulatif de votre premier mois d'abonnement</p>
+
+      <!-- Récap -->
+      <div class="bg-primary-50 border border-primary-200 rounded-xl p-4 mb-6 space-y-3">
+        <div class="flex justify-between text-sm">
+          <span class="text-neutral-600 font-medium">Plan choisi</span>
+          <span class="font-bold text-primary-700">{{ selectedType.nom }}</span>
+        </div>
+        <div *ngIf="selectedType.description" class="flex justify-between text-sm">
+          <span class="text-neutral-600 font-medium">Description</span>
+          <span class="text-neutral-700">{{ selectedType.description }}</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span class="text-neutral-600 font-medium">Solde portefeuille</span>
+          <span class="font-semibold" [class.text-green-600]="portefeuille >= +selectedType.tarif"
+                                      [class.text-red-600]="portefeuille < +selectedType.tarif">
+            {{ portefeuille }} Ar
+          </span>
+        </div>
+        <div class="border-t border-primary-200 pt-3 flex justify-between">
+          <span class="font-bold text-neutral-800">Total à payer (1 mois)</span>
+          <span class="text-2xl font-extrabold text-primary-700">{{ selectedType.tarif }} Ar</span>
+        </div>
+        <div *ngIf="portefeuille < +selectedType.tarif"
+             class="flex items-center space-x-2 text-red-600 text-sm font-medium pt-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span>Solde insuffisant — rechargez votre portefeuille avant de continuer.</span>
+        </div>
+      </div>
+
+      <!-- Boutons -->
+      <div class="space-y-3">
+        <button
+          (click)="confirmerPaiement()"
+          [disabled]="isLoading || portefeuille < +selectedType.tarif"
+          class="w-full py-3 bg-gradient-to-r from-primary-700 to-secondary-600 text-white font-bold rounded-xl
+                 hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2">
+          <ng-container *ngIf="!isLoading">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            </svg>
+            <span>Confirmer et payer {{ selectedType.tarif }} Ar</span>
+          </ng-container>
+          <ng-container *ngIf="isLoading">
+            <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <span>Traitement en cours...</span>
+          </ng-container>
+        </button>
+
+        <button
+          (click)="backToChoose()"
+          [disabled]="isLoading"
+          class="w-full py-3 border-2 border-neutral-300 text-neutral-600 font-semibold rounded-xl
+                 hover:bg-neutral-100 transition-all disabled:opacity-50">
+          ← Changer de plan
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

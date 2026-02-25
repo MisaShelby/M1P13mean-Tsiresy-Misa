@@ -1,0 +1,225 @@
+<div class="flex items-center justify-center min-h-[calc(100vh-300px)] p-4">
+    <div class="w-full max-w-6xl">
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <div class="bg-gradient-to-r from-primary-800 to-secondary-600 p-6 text-center">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
+                            <img src="imazy/5900478.png" alt="Logo" class="w-10 h-10 object-contain" />
+                        </div>
+                        <div class="text-left">
+                            <div class="font-bold text-primary-100 text-xl">
+                                SHOPPING CENTER
+                            </div>
+                            <div class="text-primary-200 text-sm">
+                                Validation des inscriptions boutique
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-primary-700 px-4 py-2 rounded-lg">
+                        <span class="text-primary-100 font-semibold">
+                            {{ boutiquesEnAttente.length }} boutique(s) en attente
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-8 bg-gray-50">
+                <div *ngIf="errorMessage"
+                    class="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg flex items-center">
+                    <i class="pi pi-exclamation-triangle mr-2"></i>
+                    {{ errorMessage }}
+                </div>
+
+                <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-700"></div>
+                </div>
+
+                <div *ngIf="!isLoading && boutiquesEnAttente.length > 0">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div *ngFor="let boutique of boutiquesEnAttente"
+                            class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200">
+
+                            <div
+                                class="bg-gradient-to-r from-primary-50 to-secondary-50 p-4 border-b border-gray-200 flex items-center space-x-3">
+                                <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
+                                    <i class="pi pi-building text-primary-600 text-xl"></i>
+                                </div>
+                                <h3 class="font-bold text-gray-800 truncate">
+                                    {{ boutique.nom_boutique }}
+                                </h3>
+                            </div>
+
+                            <div class="p-4 space-y-2">
+                                <div class="flex items-center text-sm">
+                                    <i class="pi pi-envelope text-gray-400 w-5"></i>
+                                    <span class="text-gray-600">{{ boutique.email }}</span>
+                                </div>
+                                <div class="flex items-center text-sm">
+                                    <i class="pi pi-user text-gray-400 w-5"></i>
+                                    <span class="text-gray-600">{{ boutique.nom_gerant }}</span>
+                                </div>
+                                <div class="flex items-center text-sm">
+                                    <i class="pi pi-phone text-gray-400 w-5"></i>
+                                    <span class="text-gray-600">{{ boutique.telephone_gerant }}</span>
+                                </div>
+                                <div
+                                    class="flex items-center text-xs text-gray-400 pt-2 border-t border-gray-100 justify-between">
+                                    <span>
+                                        <i class="pi pi-calendar mr-1"></i>
+                                        Demande: {{ boutique.createdAt | date:'dd/MM/yyyy' }}
+                                    </span>
+                                    <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
+                                        {{ boutique.statut_demande === 2 ? 'En attente' : 'Validé' }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 p-3 flex justify-end space-x-2 border-t border-gray-200">
+                                <button (click)="voirDetails(boutique)"
+                                    class="px-3 py-1.5 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center">
+                                    <i class="pi pi-eye mr-1"></i> Détails
+                                </button>
+                                <button (click)="ouvrirConfirmationValider(boutique)"
+                                    class="px-3 py-1.5 text-sm bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors flex items-center">
+                                    <i class="pi pi-check mr-1"></i> Valider
+                                </button>
+                                <button (click)="ouvrirConfirmationRefuser(boutique)"
+                                    class="px-3 py-1.5 text-sm bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center">
+                                    <i class="pi pi-times mr-1"></i> Refuser
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngIf="!isLoading && boutiquesEnAttente.length === 0" class="text-center py-12">
+                    <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="pi pi-check-circle text-4xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">
+                        Aucune boutique en attente
+                    </h3>
+                    <p class="text-gray-500">Toutes les demandes d'inscription ont été traitées.</p>
+                </div>
+            </div>
+
+            <div class="bg-gray-100 p-4 text-center border-t border-gray-200">
+                <a routerLink="/test" class="text-primary-600 hover:text-primary-800 font-medium transition-colors">
+                    <i class="pi pi-arrow-left mr-1"></i> Retour au tableau de bord
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="selectedBoutique" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+    (click)="closeModal()">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
+        <div
+            class="bg-gradient-to-r from-primary-800 to-secondary-600 p-6 text-white flex justify-between items-center">
+            <h2 class="text-2xl font-bold">Détails de la boutique</h2>
+            <button (click)="closeModal()" class="text-white hover:text-gray-200">
+                <i class="pi pi-times text-2xl"></i>
+            </button>
+        </div>
+        <div class="p-6 space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-gray-600">Nom de la boutique</label>
+                    <p class="text-gray-800">{{ selectedBoutique.nom_boutique }}</p>
+                </div>
+                <div class="space-y-2" *ngIf="selectedBoutique.photo">
+                    <label class="text-sm font-semibold text-gray-600">Photo</label>
+                    <img [src]="selectedBoutique.photo" alt="Photo boutique"
+                        class="w-32 h-32 object-cover rounded-lg" />
+                </div>
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-gray-600">Email</label>
+                    <p class="text-gray-800">{{ selectedBoutique.email }}</p>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-gray-600">Nom du gérant</label>
+                    <p class="text-gray-800">{{ selectedBoutique.nom_gerant }}</p>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-gray-600">Téléphone</label>
+                    <p class="text-gray-800">{{ selectedBoutique.telephone_gerant }}</p>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-gray-600">Statut demande</label>
+                    <p class="text-gray-800">
+                        {{ selectedBoutique.statut_demande === 2 ? 'En attente' : 'Validé' }}
+                    </p>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-gray-600">Date de demande</label>
+                    <p class="text-gray-800">{{ selectedBoutique.createdAt | date:'dd/MM/yyyy à HH:mm' }}</p>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                <button (click)="ouvrirConfirmationValider(selectedBoutique)"
+                    class="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors">
+                    <i class="pi pi-check mr-2"></i> Valider cette boutique
+                </button>
+                <button (click)="ouvrirConfirmationRefuser(selectedBoutique)"
+                    class="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors">
+                    <i class="pi pi-times mr-2"></i> Refuser
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="confirmationDialog.show"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+    (click)="fermerConfirmation()">
+    <div class="bg-white rounded-2xl max-w-md w-full" (click)="$event.stopPropagation()">
+        <div *ngIf="confirmationDialog.show" class="p-6 text-white rounded-t-2xl"
+            [class.bg-gradient-to-r]="confirmationDialog.type === 'valider' || confirmationDialog.type === 'refuser'"
+            [class.from-green-600]="confirmationDialog.type === 'valider'"
+            [class.to-green-700]="confirmationDialog.type === 'valider'"
+            [class.from-red-600]="confirmationDialog.type === 'refuser'"
+            [class.to-red-700]="confirmationDialog.type === 'refuser'">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                    <i class="pi text-2xl" [ngClass]="{
+       'pi-check-circle ': confirmationDialog.type === 'valider',
+       'pi-times-circle ': confirmationDialog.type === 'refuser'
+   }"></i>
+                </div>
+                <h2 class="text-2xl font-bold">
+                    {{ confirmationDialog.type === 'valider' ? 'Confirmation de validation' : 'Confirmation de refus' }}
+                </h2>
+            </div>
+        </div>
+
+        <div class="p-6">
+            <p class="text-gray-700 mb-4">
+                Êtes-vous sûr de vouloir
+                <span [ngClass]="{
+                    'text-green-600 font-semibold': confirmationDialog.type === 'valider',
+                    'text-red-600 font-semibold': confirmationDialog.type === 'refuser'
+                }">
+                    {{ confirmationDialog.type === 'valider' ? 'valider' : 'refuser' }}
+                </span>
+                la demande d'inscription de la boutique
+                <span class="font-bold text-gray-900">"{{ confirmationDialog.boutiqueNom }}"</span> ?
+            </p>
+
+            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                <button (click)="fermerConfirmation()"
+                    class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg transition-colors">
+                    Annuler
+                </button>
+                <button (click)="confirmerAction()" [ngClass]="{
+                        'bg-green-500 hover:bg-green-600': confirmationDialog.type === 'valider',
+                        'bg-red-500 hover:bg-red-600': confirmationDialog.type === 'refuser'
+                    }" class="px-4 py-2 text-white rounded-lg transition-colors flex items-center">
+                    {{ confirmationDialog.type === 'valider' ? 'Valider' : 'Refuser' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

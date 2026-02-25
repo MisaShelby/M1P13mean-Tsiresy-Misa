@@ -1,6 +1,7 @@
+import { BehaviorSubject, Observable } from 'rxjs';
+
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 export interface Admin {
@@ -152,11 +153,9 @@ export class AuthAdminService {
      * Sauvegarder la session
      */
     private setSession(response: AuthResponse): void {
-
         if (response.token) {
             localStorage.setItem('token', response.token);
         }
-
         if (response.admin) {
             localStorage.setItem('admin', JSON.stringify(response.admin));
             this.currentAdminSubject.next(response.admin);
