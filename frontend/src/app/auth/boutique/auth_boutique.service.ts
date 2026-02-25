@@ -10,6 +10,8 @@ export interface Boutique {
     email: string;
     nom_gerant: string;
     telephone_gerant: string;
+    commission_type?: string | null;
+    portefeuille: number;
     createdAt: string;
     updatedAt: string;
 }
@@ -35,6 +37,7 @@ export interface AuthResponse {
     message: string;
     token?: string;
     boutique?: Boutique;
+    requires_setup?: boolean;
     errors?: Array<{
         field: string;
         message: string;
@@ -62,6 +65,8 @@ export class AuthBoutiqueService {
             localStorage.setItem('boutique', JSON.stringify(response.boutique));
             this.currentBoutiqueSubject.next(response.boutique);
         }
+        // Stocker le flag de premier setup
+        localStorage.setItem('boutique_requires_setup', response.requires_setup ? 'true' : 'false');
     }
 
     getToken(): string | null {
@@ -101,9 +106,6 @@ export class AuthBoutiqueService {
                 tap(response => {
                     if (response.success && response.token && response.boutique) {
                         this.setSession(response);
-                        localStorage.getItem('token');
-                        localStorage.getItem('boutique');
-
                     } else {
                         console.log('Login échoué:', response.message);
                     }
@@ -113,6 +115,7 @@ export class AuthBoutiqueService {
 
     isAuthenticated(): boolean {
         const token = this.getToken();
+        
 
         if (!token) {
             console.log('❌ Pas de token trouvé');
@@ -136,9 +139,31 @@ export class AuthBoutiqueService {
         }
     }
 
+    requiresSetup(): boolean {
+        return localStorage.getItem('boutique_requires_setup') === 'true';
+    }
+
+    clearSetupFlag(): void {
+        localStorage.setItem('boutique_requires_setup', 'false');
+        // Mettre à jour la boutique stockée
+        const boutiqueStr = localStorage.getItem('boutique');
+        if (boutiqueStr) {
+            try {
+                const boutique = JSON.parse(boutiqueStr);
+                this.currentBoutiqueSubject.next(boutique);
+            } catch (e) {}
+        }
+    }
+
+    souscriptionPremierMois(commission_type_id: string): Observable<any> {
+        const headers = { Authorization: `Bearer ${this.getToken()}` };
+        return this.http.post<any>(`${this.apiUrl}/boutique-setup`, { commission_type_id }, { headers });
+    }
+
     logout(): void {
         localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        localStorage.removeItem('boutique');
+        localStorage.removeItem('boutique_requires_setup');
         this.currentBoutiqueSubject.next(null);
     }
 

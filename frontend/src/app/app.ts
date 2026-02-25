@@ -6,11 +6,12 @@ import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/rout
 import { MatIconModule } from '@angular/material/icon';
 import { NotificationComponent } from './notification/notification.component';
 import { filter } from 'rxjs/operators';
+import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-root',
     standalone: true,
-    imports: [RouterOutlet, CommonModule, NotificationComponent, MatIconModule, RouterModule],
+    imports: [RouterOutlet, CommonModule, NotificationComponent, MatIconModule, RouterModule,FormsModule],
     templateUrl: './app.html',
 })
 export class App implements OnInit {
@@ -41,7 +42,8 @@ export class App implements OnInit {
                 event.url === '/inscription-boutique' ||
                 event.url === '/login-boutique' ||
                 event.url === '/inscription-admin' ||
-                event.url === '/login-admin';
+                event.url === '/login-admin' ||
+                event.url === '/boutique-setup';
         });
 
         // Mettre à jour le type d'utilisateur à chaque navigation
@@ -76,11 +78,12 @@ export class App implements OnInit {
     logout(): void {
         // Appeler les services de déconnexion appropriés
         localStorage.removeItem('token');
+        localStorage.removeItem('boutique_token');
+        localStorage.removeItem('boutique_requires_setup');
         localStorage.removeItem('admin');
         localStorage.removeItem('boutique');
         localStorage.removeItem('user');
 
-        // Mettre à jour le type d'utilisateur
         this.authTypeService.logout();
         this.userType = null;
 
@@ -88,6 +91,14 @@ export class App implements OnInit {
     }
 
     isLoggedIn(): boolean {
-        return !!localStorage.getItem('token');
+        return !!localStorage.getItem('token')
+            || !!localStorage.getItem('boutique_token')
+            || !!localStorage.getItem('admin');
+    }
+
+    getBoutiquePortefeuille(): number {
+        const b = localStorage.getItem('boutique');
+        if (!b) return 0;
+        try { return JSON.parse(b).portefeuille ?? 0; } catch { return 0; }
     }
 }

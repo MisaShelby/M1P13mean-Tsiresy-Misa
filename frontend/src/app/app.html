@@ -24,6 +24,13 @@
                         Liste Validation Boutique
                     </a>
                 </div>
+                <div class="flex items-center space-x-2">
+                    <mat-icon>storefront</mat-icon>
+                    <a routerLink="/typecommission"
+                        class="text-white hover:text-yellow-300 text-lg font-semibold transition-colors duration-300 pointer-events-auto">
+                        Type Commission
+                    </a>
+                </div>
 
                 <div class="flex items-center space-x-2">
                     <mat-icon>storefront</mat-icon>
@@ -50,6 +57,13 @@
                         Stock
                     </a>
                 </div>
+                <div class="flex items-center space-x-2">
+                    <mat-icon>card_membership</mat-icon>
+                    <a routerLink="/mon-abonnement"
+                        class="text-white hover:text-yellow-300 text-lg font-semibold transition-colors duration-300 pointer-events-auto">
+                        Mon abonnement
+                    </a>
+                </div>
             </div>
 
             <div *ngIf="isClient()" class="flex space-x-8">
@@ -62,11 +76,35 @@
                 </div>
             </div>
 
-            <button *ngIf="isLoggedIn()" (click)="logout()"
-                class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg font-semibold transition-all duration-300 shadow-md hover:scale-105 flex items-center space-x-2 pointer-events-auto">
-                <mat-icon>logout</mat-icon>
-                <span>Déconnexion</span>
-            </button>
+            <div *ngIf="isLoggedIn()" class="flex items-center gap-4">
+
+  <!-- Carte Portefeuille -->
+  <div *ngIf="isBoutique()"
+       class="flex items-center gap-3 h-12 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white px-5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+
+    <div class="bg-white/20 p-2 rounded-full flex items-center justify-center">
+      <mat-icon class="text-white text-xl">account_balance_wallet</mat-icon>
+    </div>
+
+    <div class="flex flex-col leading-tight">
+      <span class="text-xs opacity-80">Portefeuille</span>
+      <span class="font-bold text-base tracking-wide">
+        {{ getBoutiquePortefeuille() | number }} Ar
+      </span>
+    </div>
+  </div>
+
+
+  <!-- Bouton Déconnexion -->
+  <button (click)="logout()"
+          class="flex items-center gap-2 h-12 px-5 rounded-xl font-medium transition-all duration-300 shadow-md
+                 bg-red-500 hover:bg-red-600 text-white">
+
+    <mat-icon class="text-base">logout</mat-icon>
+    <span>Déconnexion</span>
+  </button>
+
+</div>
         </div>
     </nav>
 </header>

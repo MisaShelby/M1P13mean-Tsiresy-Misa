@@ -7,6 +7,8 @@ const { protect } = require('../middlewares/auth.middleware');
 const { registerBoutique, loginBoutique } = require('../controller/boutiqueController/authBoutiqueController');
 const { registerAdmin, loginAdmin, getBoutiquesEnAttente, validerBoutique, refuserBoutique } = require('../controller/adminController/authAdminController');
 const { getProduit, addProduit } = require('../controller/boutiqueController/produitController');
+const commissionTypeController = require('../controller/boutiqueController/ComissionController');
+const { souscriptionPremierMois, getMonAbonnement } = require('../controller/boutiqueController/abonnementController');
 
 router.post('/register',
       validateUserRegistration,
@@ -67,5 +69,17 @@ router.post('create-produit',
 )
 
 router.get('/profile', protect, getProfile);
+
+router.post('/commissionType', commissionTypeController.createCommissionType);
+router.get('/commissionType', commissionTypeController.getAllCommissionTypes);
+router.get('/commissionType/:id', commissionTypeController.getCommissionTypeById);
+router.put('/commissionType/:id', commissionTypeController.updateCommissionType);
+router.delete('/commissionType/:id', commissionTypeController.deleteCommissionType);
+
+// Premier lancement boutique : choisir type de commission + payer premier mois
+router.post('/boutique-setup', protect, souscriptionPremierMois);
+
+// Abonnement de la boutique connectée
+router.get('/mon-abonnement', protect, getMonAbonnement);
 
 module.exports = router;

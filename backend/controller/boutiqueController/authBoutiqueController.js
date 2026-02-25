@@ -108,11 +108,15 @@ const loginBoutique = async (req, res) => {
             const boutiqueResponse = boutique.toObject();
             delete boutiqueResponse.mdp;
 
+            // Si la boutique n'a pas encore choisi son type de commission => première connexion
+            const requires_setup = !boutique.commission_type;
+
             res.status(200).json({
                   success: true,
                   message: 'Connexion réussie',
                   token,
-                  boutique: boutiqueResponse
+                  boutique: boutiqueResponse,
+                  requires_setup
             });
 
       } catch (error) {

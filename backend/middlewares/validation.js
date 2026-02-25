@@ -79,7 +79,6 @@ const validateBoutiqueRegistration = [
 const validateBoutiqueLogin = [
     body('nom_boutique')
         .trim()
-        .toLowerCase()
         .notEmpty().withMessage('Le nom du boutique est obligatoire'),
 
     body('mdp')

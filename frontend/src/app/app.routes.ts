@@ -9,6 +9,10 @@ import { LoginBoutique } from './auth/boutique/login_boutique/login_boutique';
 import { Routes } from '@angular/router';
 import { ValidationInscriBoutique } from './auth/admin/validation-inscri-boutique/validation-inscri-boutique';
 import { authGuard } from './guards/auth.guard';
+import { boutiqueAuthGuard } from './guards/boutique-auth.guard';
+import { CommissionTypeComponent } from './auth/admin/commission-type/commission-type.component';
+import { BoutiqueSetupComponent } from './auth/boutique/boutique-setup/boutique-setup';
+import { MonAbonnementComponent } from './component_boutique/mon-abonnement/mon-abonnement';
 
 export const routes: Routes = [
     { path: '', redirectTo: '/accueil-general', pathMatch: 'full' },
@@ -17,7 +21,7 @@ export const routes: Routes = [
     {
         path: 'test',
         component: DashboardComponent,
-        canActivate: [authGuard]
+        canActivate: [boutiqueAuthGuard]
     },
     {
         path: 'validation-isncri-boutique',
@@ -29,6 +33,9 @@ export const routes: Routes = [
         component: AccueilGeneral
     },
     { path: 'inscription-boutique', component: InscriptionBoutique },
+    { path: 'boutique-setup', component: BoutiqueSetupComponent, canActivate: [boutiqueAuthGuard] },
+    { path: 'mon-abonnement', component: MonAbonnementComponent, canActivate: [boutiqueAuthGuard] },
+    { path: 'typecommission', component: CommissionTypeComponent },
     { path: 'login-boutique', component: LoginBoutique },
     { path: 'inscription-admin', component: InscriptionAdmin },
     { path: 'login-admin', component: LoginAdmin },

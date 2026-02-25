@@ -47,7 +47,17 @@ const boutiqueSchema = new mongoose.Schema({
             enum: [0, 1], // 0 = désactivé, 1 = activé
             default: 0,
             required: true
-      }
+      },
+      portefeuille: {
+            type: Number,
+            default: 0,
+            required: true
+      },
+      commission_type:
+      {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'CommissionType',
+      },
 }, {
       timestamps: true
 });

@@ -33,12 +33,16 @@ export class LoginBoutique {
             next: (response) => {
                 if (response.success) {
                     this.notification.success(
-                        'Connexion réussie ! Redirection vers le dashboard...',
+                        'Connexion réussie !',
                         'Bienvenue'
                     );
 
                     setTimeout(() => {
-                        this.router.navigate(['/test']);
+                        if (response.requires_setup) {
+                            this.router.navigate(['/boutique-setup']);
+                        } else {
+                            this.router.navigate(['/test']);
+                        }
                     }, 1500);
                 } else {
                     if (response.errors) {
