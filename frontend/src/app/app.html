@@ -16,7 +16,7 @@
             group-hover:scale-100
             pointer-events-auto">
 
-            <div class="flex space-x-8">
+            <div *ngIf="isAdmin()" class="flex space-x-8">
                 <div class="flex items-center space-x-2">
                     <mat-icon>list</mat-icon>
                     <a [routerLink]="'/validation-isncri-boutique'"
@@ -27,7 +27,7 @@
 
                 <div class="flex items-center space-x-2">
                     <mat-icon>storefront</mat-icon>
-                    <a routerLink=""
+                    <a routerLink="/liste-boutiques"
                         class="text-white hover:text-yellow-300 text-lg font-semibold transition-colors duration-300 pointer-events-auto">
                         Liste Boutiques
                     </a>
@@ -35,12 +35,31 @@
 
                 <div class="flex items-center space-x-2">
                     <mat-icon>inventory_2</mat-icon>
-                    <a routerLink="/"
+                    <a routerLink="/articles-par-boutique"
                         class="text-white hover:text-yellow-300 text-lg font-semibold transition-colors duration-300 pointer-events-auto">
                         Liste Articles par boutique
                     </a>
                 </div>
+            </div>
 
+            <div *ngIf="isBoutique()" class="flex space-x-8">
+                <div class="flex items-center space-x-2">
+                    <mat-icon>dashboard</mat-icon>
+                    <a routerLink="/tableau-de-bord-boutique"
+                        class="text-white hover:text-yellow-300 text-lg font-semibold transition-colors duration-300">
+                        Stock
+                    </a>
+                </div>
+            </div>
+
+            <div *ngIf="isClient()" class="flex space-x-8">
+                <div class="flex items-center space-x-2">
+                    <mat-icon>shopping_cart</mat-icon>
+                    <a routerLink="#"
+                        class="text-white hover:text-yellow-300 text-lg font-semibold transition-colors duration-300">
+                        Mes commandes
+                    </a>
+                </div>
             </div>
 
             <button *ngIf="isLoggedIn()" (click)="logout()"
@@ -49,13 +68,11 @@
                 <span>Déconnexion</span>
             </button>
         </div>
-
     </nav>
 </header>
 
 <!-- Contenu principal -->
 <main [class.login-background]="hideHeaderFooter" class="min-h-screen py-8">
-
     <div class="container mx-auto px-4">
         <router-outlet></router-outlet>
     </div>
@@ -69,7 +86,7 @@
             <div class="flex flex-wrap justify-center gap-6 mb-6">
                 <div class="text-center">
                     <div class="font-bold text-blue-300 mb-1">Technologies</div>
-                    <div class="text-sm">Angular • Express • Angular • Tailwind CSS</div>
+                    <div class="text-sm">Angular • Express • MongoDB • Tailwind CSS</div>
                 </div>
                 <div class="text-center">
                     <div class="font-bold text-blue-300 mb-1">Architecture</div>

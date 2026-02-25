@@ -1,3 +1,4 @@
+import { AuthTypeService, UserType } from './services/auth-type.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, HostListener, OnInit } from '@angular/core';
 import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
@@ -12,13 +13,17 @@ import { filter } from 'rxjs/operators';
     imports: [RouterOutlet, CommonModule, NotificationComponent, MatIconModule, RouterModule],
     templateUrl: './app.html',
 })
-export class App {
+export class App implements OnInit {
     title = 'frontend';
     currentDate = new Date();
     hideHeaderFooter = false;
     isScrolled = false;
+    userType: UserType = null;
 
-    constructor(private router: Router) { }
+    constructor(
+        private router: Router,
+        private authTypeService: AuthTypeService
+    ) { }
 
     @HostListener('window:scroll', [])
     onWindowScroll() {
@@ -38,24 +43,51 @@ export class App {
                 event.url === '/inscription-admin' ||
                 event.url === '/login-admin';
         });
+
+        // Mettre à jour le type d'utilisateur à chaque navigation
+        this.router.events.subscribe(() => {
+            this.userType = this.authTypeService.checkUserType();
+        });
+
+        // Vérifier initialement
+        this.userType = this.authTypeService.checkUserType();
     }
 
     isAccueilGeneral(): boolean {
         return this.router.url === '/accueil-general';
     }
 
-
     shouldShowHeaderFooter(): boolean {
         return !this.hideHeaderFooter;
     }
 
+    isAdmin(): boolean {
+        return this.userType === 'admin';
+    }
+
+    isBoutique(): boolean {
+        return this.userType === 'boutique';
+    }
+
+    isClient(): boolean {
+        return this.userType === 'client';
+    }
+
     logout(): void {
+        // Appeler les services de déconnexion appropriés
         localStorage.removeItem('token');
+        localStorage.removeItem('admin');
+        localStorage.removeItem('boutique');
+        localStorage.removeItem('user');
+
+        // Mettre à jour le type d'utilisateur
+        this.authTypeService.logout();
+        this.userType = null;
+
         this.router.navigate(['/accueil-general']);
     }
 
     isLoggedIn(): boolean {
         return !!localStorage.getItem('token');
     }
-
 }

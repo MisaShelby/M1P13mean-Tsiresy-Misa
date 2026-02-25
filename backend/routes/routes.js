@@ -6,6 +6,7 @@ const validateRequest = require('../middlewares/validate');
 const { protect } = require('../middlewares/auth.middleware');
 const { registerBoutique, loginBoutique } = require('../controller/boutiqueController/authBoutiqueController');
 const { registerAdmin, loginAdmin, getBoutiquesEnAttente, validerBoutique, refuserBoutique } = require('../controller/adminController/authAdminController');
+const { getProduit, addProduit } = require('../controller/boutiqueController/produitController');
 
 router.post('/register',
       validateUserRegistration,
@@ -51,11 +52,18 @@ router.get('/liste-validation-inscri-boutique',
 router.post('/validation-inscri-boutique',
       validateRequest,
       validerBoutique
-)
+);
 
 router.post('/refut-inscri-boutique',
       validateRequest,
       refuserBoutique
+);
+router.get('/liste-produit',
+      getProduit
+);
+
+router.post('create-produit',
+      addProduit
 )
 
 router.get('/profile', protect, getProfile);

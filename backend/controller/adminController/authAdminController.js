@@ -160,10 +160,10 @@ const getBoutiquesEnAttente = async (req, res) => {
 
 const validerBoutique = async (req, res) => {
       try {
-            const { id } = req.body; 
+            const { id } = req.body;
 
             const boutique = await Boutique.findByIdAndUpdate(
-                  id, 
+                  id,
                   { statut_demande: 1 },
                   { new: true }
             );
@@ -190,10 +190,10 @@ const validerBoutique = async (req, res) => {
 
 const refuserBoutique = async (req, res) => {
       try {
-            const { id } = req.body; 
+            const { id } = req.body;
 
             const boutique = await Boutique.findByIdAndUpdate(
-                  id, 
+                  id,
                   { statut_demande: 0 },
                   { new: true }
             );

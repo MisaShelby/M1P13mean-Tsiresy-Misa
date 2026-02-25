@@ -1,6 +1,7 @@
+import { BehaviorSubject, Observable, tap } from "rxjs";
+
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, Observable, tap } from "rxjs";
 
 export interface Boutique {
     _id: string;
@@ -57,7 +58,6 @@ export class AuthBoutiqueService {
         if (response.token) {
             localStorage.setItem('token', response.token);
         }
-
         if (response.boutique) {
             localStorage.setItem('boutique', JSON.stringify(response.boutique));
             this.currentBoutiqueSubject.next(response.boutique);
@@ -96,21 +96,21 @@ export class AuthBoutiqueService {
     }
 
     login(credentials: LoginBoutiqueData): Observable<AuthResponse> {
-            return this.http.post<AuthResponse>(`${this.apiUrl}/login-boutique`, credentials)
-                .pipe(
-                    tap(response => {
-                        if (response.success && response.token && response.boutique) {
-                            this.setSession(response);
-                            localStorage.getItem('token');
-                            localStorage.getItem('boutique');
-    
-                        } else {
-                            console.log('Login échoué:', response.message);
-                        }
-                    })
-                );
-        }
-    
+        return this.http.post<AuthResponse>(`${this.apiUrl}/login-boutique`, credentials)
+            .pipe(
+                tap(response => {
+                    if (response.success && response.token && response.boutique) {
+                        this.setSession(response);
+                        localStorage.getItem('token');
+                        localStorage.getItem('boutique');
+
+                    } else {
+                        console.log('Login échoué:', response.message);
+                    }
+                })
+            );
+    }
+
     isAuthenticated(): boolean {
         const token = this.getToken();
 
