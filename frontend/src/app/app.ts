@@ -76,6 +76,7 @@ export class App implements OnInit {
     }
 
     logout(): void {
+        // Appeler les services de déconnexion appropriés
         localStorage.removeItem('token');
         localStorage.removeItem('boutique_token');
         localStorage.removeItem('boutique_requires_setup');
