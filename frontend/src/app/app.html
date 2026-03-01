@@ -1,7 +1,7 @@
 <app-notification></app-notification>
 <!-- Header -->
 <header *ngIf="shouldShowHeaderFooter()" class="relative bg-blue-900 text-white shadow-lg">
-    <nav class="container mx-auto px-6 py-3 relative group overflow-hidden">
+    <nav class="container mx-auto px-6 py-3 relative group overflow-visible">
         <div class="flex justify-center transition-all duration-500 ease-in-out
                    group-hover:opacity-0 group-hover:-translate-y-4 group-hover:scale-95">
             <img src="imazy/centre-commercial.png" alt="Centre Commercial"
@@ -14,7 +14,7 @@
             group-hover:opacity-100
             group-hover:translate-y-0
             group-hover:scale-100
-            pointer-events-auto">
+            pointer-events-auto z-30">
 
             <div *ngIf="isAdmin()" class="flex space-x-8">
                 <div class="flex items-center space-x-2">
@@ -49,14 +49,7 @@
                 </div>
             </div>
 
-            <div *ngIf="isBoutique()" class="flex space-x-8">
-                <div class="flex items-center space-x-2">
-                    <mat-icon>dashboard</mat-icon>
-                    <a routerLink="/tableau-de-bord-boutique"
-                        class="text-white hover:text-yellow-300 text-lg font-semibold transition-colors duration-300">
-                        Stock
-                    </a>
-                </div>
+            <div *ngIf="isBoutique()" class="flex space-x-8 items-center">
                 <div class="flex items-center space-x-2">
                     <mat-icon>card_membership</mat-icon>
                     <a routerLink="/mon-abonnement"
@@ -64,6 +57,36 @@
                         Mon abonnement
                     </a>
                 </div>
+
+                <div class="relative" (click)="toggleProduitMenu()" >
+                    <div class="flex items-center space-x-2 cursor-pointer">
+                        <mat-icon>inventory_2</mat-icon>
+                        <span class="text-white hover:text-yellow-300 text-lg font-semibold transition-colors duration-300">
+                            Produit
+                        </span>
+                        <mat-icon class="text-sm">{{ showProduitMenu ? 'expand_less' : 'expand_more' }}</mat-icon>
+                    </div>
+
+                    <div *ngIf="showProduitMenu"
+                        class="absolute left-0 top-full mt-1 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 overflow-hidden animate-fadeIn">
+                        <a routerLink="/create-produit"
+                            class="flex items-center gap-3 px-5 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200">
+                            <mat-icon class="text-blue-500">add_circle</mat-icon>
+                            <span class="font-medium">Ajouter des produits</span>
+                        </a>
+                        <a routerLink="/liste-produit"
+                            class="flex items-center gap-3 px-5 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 border-t border-gray-100">
+                            <mat-icon class="text-green-500">list_alt</mat-icon>
+                            <span class="font-medium">Liste des produits</span>
+                        </a>
+                        <a routerLink="/stock-produit"
+                            class="flex items-center gap-3 px-5 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 border-t border-gray-100">
+                            <mat-icon class="text-orange-500">warehouse</mat-icon>
+                            <span class="font-medium">Gestion de stock</span>
+                        </a>
+                    </div>
+                </div>
+
             </div>
 
             <div *ngIf="isClient()" class="flex space-x-8">
@@ -77,40 +100,49 @@
             </div>
 
             <div *ngIf="isLoggedIn()" class="flex items-center gap-4">
+                <div *ngIf="isBoutique()"
+                    class="flex items-center gap-3 h-12 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white px-5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
 
-  <!-- Carte Portefeuille -->
-  <div *ngIf="isBoutique()"
-       class="flex items-center gap-3 h-12 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white px-5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div class="bg-white/20 p-2 rounded-full flex items-center justify-center">
+                        <mat-icon class="text-white text-xl">account_balance_wallet</mat-icon>
+                    </div>
 
-    <div class="bg-white/20 p-2 rounded-full flex items-center justify-center">
-      <mat-icon class="text-white text-xl">account_balance_wallet</mat-icon>
-    </div>
+                    <div class="flex flex-col leading-tight">
+                        <span class="text-xs opacity-80">Portefeuille</span>
+                        <span class="font-bold text-base tracking-wide">
+                            {{ getBoutiquePortefeuille() | number }} Ar
+                        </span>
+                    </div>
+                </div>
 
-    <div class="flex flex-col leading-tight">
-      <span class="text-xs opacity-80">Portefeuille</span>
-      <span class="font-bold text-base tracking-wide">
-        {{ getBoutiquePortefeuille() | number }} Ar
-      </span>
-    </div>
-  </div>
+               <div *ngIf="isBoutique()"
+                    class="flex items-center justify-center gap-3 h-12 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div class="bg-white/20 p-2 rounded-full flex items-center justify-center">
+                        <mat-icon class="text-white text-xl">store</mat-icon>
+                    </div>
 
+                    <div class="flex flex-col leading-tight text-center">
+                        <span class="text-xs opacity-80">Abonnement</span>
+                        <span class="font-bold text-base tracking-wide">
+                            {{ getBoutiqueCommission() }}
+                        </span>
+                    </div>
+                </div>
 
-  <!-- Bouton Déconnexion -->
-  <button (click)="logout()"
-          class="flex items-center gap-2 h-12 px-5 rounded-xl font-medium transition-all duration-300 shadow-md
+                <button (click)="logout()"
+                    class="flex items-center gap-2 h-12 px-5 rounded-xl font-medium transition-all duration-300 shadow-md
                  bg-red-500 hover:bg-red-600 text-white">
 
-    <mat-icon class="text-base">logout</mat-icon>
-    <span>Déconnexion</span>
-  </button>
-
-</div>
+                    <mat-icon class="text-base">logout</mat-icon>
+                    <span>Déconnexion</span>
+                </button>
+            </div>
         </div>
     </nav>
 </header>
 
 <!-- Contenu principal -->
-<main [class.login-background]="hideHeaderFooter" class="min-h-screen py-8">
+<main [class.login-background]="hideHeaderFooter" class="min-h-screen py-8 z-10">
     <div class="container mx-auto px-4">
         <router-outlet></router-outlet>
     </div>

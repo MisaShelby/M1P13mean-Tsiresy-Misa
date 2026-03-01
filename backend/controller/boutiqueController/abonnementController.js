@@ -154,4 +154,152 @@ const getMonAbonnement = async (req, res) => {
     }
 };
 
-module.exports = { souscriptionPremierMois, deduirePortefeuille, getMonAbonnement };
+/**
+ * PUT /changer-abonnement
+ * Permet à une boutique de changer son type de commission.
+ * - Désactive l'ancien abonnement
+ * - Déduit le tarif du nouveau plan du portefeuille
+ * - Crée un nouvel abonnement + paiement
+ * - Met à jour le commission_type de la boutique
+ */
+const changerAbonnement = async (req, res) => {
+    try {
+        const boutiqueId = req.user.id;
+        const { commission_type_id } = req.body;
+
+        if (!commission_type_id) {
+            return res.status(400).json({
+                success: false,
+                message: 'Le type de commission est obligatoire'
+            });
+        }
+
+        const boutique = await Boutique.findById(boutiqueId);
+        if (!boutique) {
+            return res.status(404).json({ success: false, message: 'Boutique introuvable' });
+        }
+
+        // Vérifier que le type de commission existe
+        const commissionType = await CommissionType.findById(commission_type_id);
+        if (!commissionType) {
+            return res.status(404).json({ success: false, message: 'Type de commission introuvable' });
+        }
+
+        // Vérifier que ce n'est pas le même plan
+        if (boutique.commission_type && boutique.commission_type.toString() === commission_type_id) {
+            return res.status(400).json({
+                success: false,
+                message: 'Vous êtes déjà abonné à ce plan'
+            });
+        }
+
+        // Déduire le montant du portefeuille
+        await deduirePortefeuille(boutique, commissionType.tarif);
+
+        // Désactiver l'ancien abonnement actif
+        await Abonnement.updateMany(
+            { id_boutique: boutiqueId, statut: 'ACTIVE' },
+            { statut: 'CANCELLED' }
+        );
+
+        const maintenant = new Date();
+        const prochainPaiement = new Date(maintenant);
+        prochainPaiement.setMonth(prochainPaiement.getMonth() + 1);
+
+        // Créer le nouvel abonnement
+        const abonnement = await Abonnement.create({
+            id_boutique: boutiqueId,
+            id_commission_type: commission_type_id,
+            date_debut: maintenant,
+            prochain_paiement: prochainPaiement,
+            statut: 'ACTIVE'
+        });
+
+        // Créer le paiement
+        await Paiement.create({
+            abonnement: abonnement._id,
+            tarif: commissionType.tarif,
+            date_paiement: maintenant
+        });
+
+        // Mettre à jour le type de commission de la boutique
+        boutique.commission_type = commission_type_id;
+        await boutique.save();
+
+        const boutiqueResponse = boutique.toObject();
+        delete boutiqueResponse.mdp;
+
+        // Peupler le type de commission dans l'abonnement
+        await abonnement.populate('id_commission_type');
+
+        // Récupérer les paiements mis à jour
+        const paiements = await Paiement.find({ abonnement: abonnement._id }).sort({ date_paiement: -1 });
+
+        res.status(200).json({
+            success: true,
+            message: `Abonnement changé vers le plan "${commissionType.nom}" avec succès`,
+            boutique: boutiqueResponse,
+            abonnement,
+            paiements
+        });
+
+    } catch (error) {
+        if (error.code === 'SOLDE_INSUFFISANT') {
+            return res.status(402).json({
+                success: false,
+                message: error.message,
+                code: 'SOLDE_INSUFFISANT'
+            });
+        }
+        console.error('Erreur lors du changement d\'abonnement:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erreur serveur lors du changement d\'abonnement'
+        });
+    }
+};
+
+/**
+ * POST /recharger-portefeuille
+ * Permet à une boutique d'ajouter de l'argent dans son portefeuille.
+ */
+const rechargerPortefeuille = async (req, res) => {
+    try {
+        const boutiqueId = req.user.id;
+        const { montant } = req.body;
+
+        if (!montant || montant <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Le montant doit être supérieur à 0'
+            });
+        }
+
+        const boutique = await Boutique.findById(boutiqueId);
+        if (!boutique) {
+            return res.status(404).json({ success: false, message: 'Boutique introuvable' });
+        }
+
+        boutique.portefeuille += montant;
+        await boutique.save();
+
+        const boutiqueResponse = boutique.toObject();
+        delete boutiqueResponse.mdp;
+
+        res.status(200).json({
+            success: true,
+            message: `Rechargement de ${montant} Ar effectué avec succès`,
+            boutique: boutiqueResponse,
+            nouveau_solde: boutique.portefeuille
+        });
+
+    } catch (error) {
+        console.error('Erreur lors du rechargement:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erreur serveur lors du rechargement'
+        });
+    }
+};
+
+module.exports = { souscriptionPremierMois, deduirePortefeuille, getMonAbonnement, changerAbonnement, rechargerPortefeuille };

@@ -1,1 +1,396 @@
-<p>list-produit works!</p>
+<div class="max-w-6xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+            <span class="text-3xl">📋</span> Liste des produits
+            <span *ngIf="!isLoading" class="text-sm font-normal text-gray-400 ml-2">({{ totalCount }} résultat{{ totalCount > 1 ? 's' : '' }})</span>
+        </h2>
+        <a routerLink="/create-produit"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl transition shadow-md flex items-center gap-2">
+            ➕ Ajouter un produit
+        </a>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-5 mb-6 space-y-4">
+        <div class="relative">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">🔍</span>
+            <input type="text" [(ngModel)]="searchText" (ngModelChange)="onSearchChange()"
+                placeholder="Rechercher par nom ou description..."
+                class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" />
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 mb-1">Type</label>
+                <select [(ngModel)]="filterType" (ngModelChange)="onFilterChange()"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-white">
+                    <option value="">Tous les types</option>
+                    <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 mb-1">Statut</label>
+                <select [(ngModel)]="filterStatut" (ngModelChange)="onFilterChange()"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-white">
+                    <option value="">Tous</option>
+                    <option value="1">Activé</option>
+                    <option value="0">Désactivé</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 mb-1">Prix min (Ar)</label>
+                <input type="number" [(ngModel)]="filterPrixMin" (ngModelChange)="onSearchChange()" min="0"
+                    placeholder="0"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 mb-1">Prix max (Ar)</label>
+                <input type="number" [(ngModel)]="filterPrixMax" (ngModelChange)="onSearchChange()" min="0"
+                    placeholder="∞"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+            </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-xs font-semibold text-gray-500">Trier par :</span>
+                <button (click)="toggleSort('nom')" [class.bg-blue-100]="sortBy === 'nom'" [class.text-blue-700]="sortBy === 'nom'"
+                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-200 hover:bg-blue-50 transition">
+                    Nom <mat-icon class="text-sm !w-4 !h-4 !text-[16px]">{{ getSortIcon('nom') }}</mat-icon>
+                </button>
+                <button (click)="toggleSort('prix_unitaire')" [class.bg-blue-100]="sortBy === 'prix_unitaire'" [class.text-blue-700]="sortBy === 'prix_unitaire'"
+                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-200 hover:bg-blue-50 transition">
+                    Prix <mat-icon class="text-sm !w-4 !h-4 !text-[16px]">{{ getSortIcon('prix_unitaire') }}</mat-icon>
+                </button>
+                <button (click)="toggleSort('type')" [class.bg-blue-100]="sortBy === 'type'" [class.text-blue-700]="sortBy === 'type'"
+                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-200 hover:bg-blue-50 transition">
+                    Type <mat-icon class="text-sm !w-4 !h-4 !text-[16px]">{{ getSortIcon('type') }}</mat-icon>
+                </button>
+                <button (click)="toggleSort('statut')" [class.bg-blue-100]="sortBy === 'statut'" [class.text-blue-700]="sortBy === 'statut'"
+                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-200 hover:bg-blue-50 transition">
+                    Statut <mat-icon class="text-sm !w-4 !h-4 !text-[16px]">{{ getSortIcon('statut') }}</mat-icon>
+                </button>
+                <button (click)="toggleSort('createdAt')" 
+                        [class.bg-blue-100]="sortBy === 'createdAt'" 
+                        [class.text-blue-700]="sortBy === 'createdAt'"
+                        class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-200 hover:bg-blue-50 transition">
+                Date
+                <mat-icon class="text-sm !w-4 !h-4 !text-[16px]">{{ getSortIcon('createdAt') }}</mat-icon>
+                </button>
+            </div>
+            <button (click)="resetFilters()"
+                class="text-xs font-medium text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1.5 rounded-lg border border-red-200 transition">
+                ✕ Réinitialiser
+            </button>
+        </div>
+    </div>
+
+    <div *ngIf="isLoading" class="text-center py-16">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <p class="mt-4 text-gray-500">Chargement des produits...</p>
+    </div>
+
+    <div *ngIf="errorMessage && !isLoading"
+        class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl text-center">
+        {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!isLoading && !errorMessage && produits.length === 0"
+        class="bg-gray-50 border border-gray-200 p-12 rounded-2xl text-center">
+        <span class="text-5xl">📦</span>
+        <p class="mt-4 text-lg text-gray-600">Aucun produit pour le moment</p>
+        <a routerLink="/create-produit"
+            class="inline-block mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-xl transition">
+            Ajouter votre premier produit
+        </a>
+    </div>
+
+    <div *ngIf="!isLoading && produits.length > 0"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+
+        <div *ngFor="let p of produits"
+            class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100">
+
+            <div class="relative h-48 bg-gray-100 flex items-center justify-center overflow-hidden">
+                <img *ngIf="p.photo" [src]="p.photo" [alt]="p.nom"
+                    class="w-full h-full object-cover" />
+                <div *ngIf="!p.photo" class="text-6xl text-gray-300">📷</div>
+                <span [ngClass]="getStatutClass(p.statut)"
+                    class="absolute top-3 right-3 text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                    {{ getStatutLabel(p.statut) }}
+                </span>
+            </div>
+
+            <div class="p-4 space-y-2">
+                <h3 class="text-lg font-bold text-gray-800 truncate" [title]="p.nom">{{ p.nom }}</h3>
+                <span class="inline-block bg-blue-50 text-blue-700 text-xs font-semibold px-2.5 py-1 rounded-full">
+                    {{ p.type }}
+                </span>
+                <p *ngIf="p.description" class="text-sm text-gray-500 line-clamp-2">{{ p.description }}</p>
+                <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+                    <span class="text-lg font-bold text-green-600">{{ p.prix_unitaire | number }} Ar</span>
+                    <span class="text-xs text-gray-400">{{ p.createdAt | date:'dd/MM/yyyy' }}</span>
+                </div>
+                <!-- Stock restant -->
+                <div class="pt-1">
+                    <span [ngClass]="getStockClass(p._id)"
+                        class="inline-flex items-center gap-1 text-xs font-bold px-3 py-1 rounded-full">
+                        📦 Stock : {{ getStock(p._id) }}
+                    </span>
+                </div>
+                <!-- Promotions actives -->
+                <div *ngIf="getActivePromoCount(p._id) > 0" class="pt-1 flex flex-wrap gap-1">
+                    <ng-container *ngFor="let promo of getPromos(p._id)">
+                        <span *ngIf="promo.statut === 1"
+                            [ngClass]="getPromoTypeBadgeClass(promo.type_promotion)"
+                            class="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full">
+                            <ng-container [ngSwitch]="promo.type_promotion">
+                                <span *ngSwitchCase="'POURCENTAGE'">🏷️ -{{ promo.pourcentage }}%</span>
+                                <span *ngSwitchCase="'ACHETE_OFFERT'">🎁 1+1</span>
+                                <span *ngSwitchCase="'CODE_PROMO'">🔑 {{ promo.code_promo }} (-{{ promo.pourcentage }}%)</span>
+                            </ng-container>
+                        </span>
+                    </ng-container>
+                </div>
+                <div class="pt-2 flex gap-2">
+                    <button (click)="openEdit(p)"
+                        class="flex-1 bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-semibold py-2 rounded-lg transition flex items-center justify-center gap-2 text-sm">
+                        ✏️ Modifier
+                    </button>
+                    <button (click)="openPromoModal(p)"
+                        class="flex-1 bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 rounded-lg transition flex items-center justify-center gap-1 text-sm">
+                        🏷️ Promos
+                        <span *ngIf="getActivePromoCount(p._id) > 0"
+                            class="bg-white text-purple-700 text-xs font-bold px-1.5 py-0.5 rounded-full ml-1">
+                            {{ getActivePromoCount(p._id) }}
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center p-6 border-b border-gray-100">
+            <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                ✏️ Modifier le produit
+            </h3>
+            <button (click)="closeEdit()" class="text-gray-400 hover:text-gray-700 text-2xl font-bold transition">&times;</button>
+        </div>
+
+        <form (ngSubmit)="submitEdit()" class="p-6 space-y-5">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Nom du produit *</label>
+                <input type="text" [(ngModel)]="editProduit.nom" name="editNom" required
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Photo</label>
+                <div class="flex items-center gap-4">
+                    <label class="cursor-pointer bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium px-4 py-2 rounded-lg border border-blue-200 transition">
+                        <span>📷 Changer l'image</span>
+                        <input type="file" accept="image/*" (change)="onEditPhotoChange($event)" class="hidden" />
+                    </label>
+                    <button *ngIf="editPhotoPreview" type="button" (click)="removeEditPhoto()"
+                        class="text-red-500 hover:text-red-700 text-sm font-medium transition">
+                        ✕ Supprimer
+                    </button>
+                </div>
+                <div *ngIf="editPhotoPreview" class="mt-3">
+                    <img [src]="editPhotoPreview" alt="Aperçu"
+                        class="w-32 h-32 object-cover rounded-xl border-2 border-gray-200 shadow-sm" />
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Type *</label>
+                <select [(ngModel)]="editProduit.type" name="editType" required
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-white">
+                    <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Prix unitaire (Ar) *</label>
+                <input type="number" [(ngModel)]="editProduit.prix_unitaire" name="editPrix" min="0" required
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Description</label>
+                <textarea [(ngModel)]="editProduit.description" name="editDescription" rows="3"
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-none"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Statut</label>
+                <div class="flex items-center gap-4">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" [(ngModel)]="editProduit.statut" name="editStatut" [value]="1"
+                            class="w-4 h-4 text-green-600 focus:ring-green-500" />
+                        <span class="text-sm text-gray-700">🟢 Activé</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" [(ngModel)]="editProduit.statut" name="editStatut" [value]="0"
+                            class="w-4 h-4 text-red-600 focus:ring-red-500" />
+                        <span class="text-sm text-gray-700">🔴 Désactivé</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex gap-3 pt-4">
+                <button type="submit" [disabled]="editLoading"
+                    class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 rounded-xl transition shadow-md">
+                    <span *ngIf="!editLoading">Enregistrer</span>
+                    <span *ngIf="editLoading">Modification...</span>
+                </button>
+                <button type="button" (click)="closeEdit()"
+                    class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl transition">
+                    Annuler
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div *ngIf="showPromoModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center p-6 border-b border-gray-100">
+            <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                🏷️ Promotions — {{ promoProduit?.nom }}
+            </h3>
+            <button (click)="closePromoModal()" class="text-gray-400 hover:text-gray-700 text-2xl font-bold transition">&times;</button>
+        </div>
+
+        <div class="p-6 space-y-5">
+            <div class="bg-purple-50 border border-purple-200 rounded-xl p-4 space-y-3">
+                <h4 class="text-sm font-bold text-purple-800">Ajouter une promotion</h4>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Type</label>
+                    <select [(ngModel)]="newPromo.type_promotion" name="newPromoType"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition bg-white">
+                        <option value="POURCENTAGE">Promotion % (réduction)</option>
+                        <option value="ACHETE_OFFERT">1 acheté = 1 offert</option>
+                        <option value="CODE_PROMO">Code promo</option>
+                    </select>
+                </div>
+
+                <div *ngIf="newPromo.type_promotion === 'POURCENTAGE'">
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Pourcentage</label>
+                    <div class="flex items-center gap-2">
+                        <input type="number" [(ngModel)]="newPromo.pourcentage" name="newPromoPourc"
+                            min="1" max="100" placeholder="Ex: 10"
+                            class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition" />
+                        <span class="text-sm font-bold text-gray-500">%</span>
+                    </div>
+                </div>
+
+                <div *ngIf="newPromo.type_promotion === 'ACHETE_OFFERT'"
+                    class="bg-green-50 text-green-700 text-sm font-medium px-3 py-2 rounded-lg">
+                    🎁 Le client achète 1 produit et en reçoit 1 gratuitement
+                </div>
+
+                <div *ngIf="newPromo.type_promotion === 'CODE_PROMO'" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Code promo</label>
+                        <input type="text" [(ngModel)]="newPromo.code_promo" name="newPromoCode"
+                            placeholder="Ex: BOBO2024"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Pourcentage</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" [(ngModel)]="newPromo.pourcentage" name="newPromoCodePourc"
+                                min="1" max="100" placeholder="Ex: 5"
+                                class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition" />
+                            <span class="text-sm font-bold text-gray-500">%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">📅 Date début *</label>
+                        <input type="date" [(ngModel)]="newPromo.date_debut" name="newPromoDateDebut"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">📅 Date fin *</label>
+                        <input type="date" [(ngModel)]="newPromo.date_fin" name="newPromoDateFin"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition" />
+                    </div>
+                </div>
+
+                <button (click)="addPromotion()" [disabled]="promoLoading"
+                    class="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-purple-300 text-white font-semibold py-2.5 rounded-xl transition text-sm">
+                    <span *ngIf="!promoLoading">➕ Ajouter</span>
+                    <span *ngIf="promoLoading">Ajout...</span>
+                </button>
+            </div>
+
+            <div>
+                <h4 class="text-sm font-bold text-gray-700 mb-3">Promotions existantes</h4>
+
+                <div *ngIf="promoLoading && produitPromos.length === 0" class="text-center py-4">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                </div>
+
+                <div *ngIf="!promoLoading && produitPromos.length === 0"
+                    class="text-center py-6 text-gray-400 text-sm bg-gray-50 rounded-xl">
+                    Aucune promotion pour ce produit
+                </div>
+
+                <div class="space-y-2">
+                    <div *ngFor="let promo of produitPromos"
+                        class="bg-gray-50 rounded-xl px-4 py-3 border border-gray-100 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span [ngClass]="getPromoTypeBadgeClass(promo.type_promotion)"
+                                    class="text-xs font-bold px-2.5 py-1 rounded-full">
+                                    {{ getPromoTypeLabel(promo.type_promotion) }}
+                                </span>
+                                <span class="text-sm text-gray-700 font-medium">
+                                    <ng-container [ngSwitch]="promo.type_promotion">
+                                        <span *ngSwitchCase="'POURCENTAGE'">-{{ promo.pourcentage }}%</span>
+                                        <span *ngSwitchCase="'ACHETE_OFFERT'">🎁 1 acheté = 1 offert</span>
+                                        <span *ngSwitchCase="'CODE_PROMO'">{{ promo.code_promo }} (-{{ promo.pourcentage }}%)</span>
+                                    </ng-container>
+                                </span>
+                                <span [ngClass]="promo.statut === 1 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
+                                    class="text-xs font-bold px-2 py-0.5 rounded-full">
+                                    {{ promo.statut === 1 ? 'Active' : 'Inactive' }}
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button (click)="togglePromoStatut(promo)"
+                                    [title]="promo.statut === 1 ? 'Désactiver' : 'Activer'"
+                                    class="text-xs px-2 py-1 rounded-lg transition font-medium"
+                                    [ngClass]="promo.statut === 1 ? 'bg-orange-100 text-orange-700 hover:bg-orange-200' : 'bg-green-100 text-green-700 hover:bg-green-200'">
+                                    {{ promo.statut === 1 ? '⏸️' : '▶️' }}
+                                </button>
+                                <button (click)="deletePromotion(promo)"
+                                    class="text-xs px-2 py-1 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition font-medium">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-gray-500">
+                            <span>📅 {{ promo.date_debut | date:'dd/MM/yyyy' }} → {{ promo.date_fin | date:'dd/MM/yyyy' }}</span>
+                            <span *ngIf="isPromoExpired(promo)" class="bg-red-100 text-red-600 font-bold px-2 py-0.5 rounded-full">Expirée</span>
+                            <span *ngIf="!isPromoExpired(promo) && isPromoNotStarted(promo)" class="bg-yellow-100 text-yellow-700 font-bold px-2 py-0.5 rounded-full">Pas encore active</span>
+                            <span *ngIf="!isPromoExpired(promo) && !isPromoNotStarted(promo) && promo.statut === 1" class="bg-green-100 text-green-700 font-bold px-2 py-0.5 rounded-full">En cours</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button (click)="closePromoModal()"
+                class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl transition">
+                Fermer
+            </button>
+        </div>
+    </div>
+</div>

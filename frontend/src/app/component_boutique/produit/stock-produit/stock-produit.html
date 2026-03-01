@@ -1,0 +1,204 @@
+<div class="max-w-6xl mx-auto">
+
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+      <span class="text-3xl">📦</span> Gestion de stock
+    </h2>
+    <button (click)="openAjout()"
+      class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl transition shadow-md flex items-center gap-2">
+      ➕ Ajouter du stock
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="text-center py-16">
+    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    <p class="mt-4 text-gray-500">Chargement des stocks...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="errorMessage && !isLoading"
+    class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl text-center">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!isLoading && !errorMessage && stocks.length === 0"
+    class="bg-gray-50 border border-gray-200 p-12 rounded-2xl text-center">
+    <span class="text-5xl">📭</span>
+    <p class="mt-4 text-lg text-gray-600">Aucun stock enregistré pour le moment</p>
+    <button (click)="openAjout()"
+      class="inline-block mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-xl transition">
+      Initialiser le stock d'un produit
+    </button>
+  </div>
+
+  <!-- Tableau des stocks -->
+  <div *ngIf="!isLoading && stocks.length > 0" class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+    <table class="w-full">
+      <thead class="bg-gray-50 border-b border-gray-200">
+        <tr>
+          <th class="text-left px-6 py-4 text-sm font-semibold text-gray-600">Produit</th>
+          <th class="text-left px-6 py-4 text-sm font-semibold text-gray-600">Type</th>
+          <th class="text-center px-6 py-4 text-sm font-semibold text-gray-600">Prix unitaire</th>
+          <th class="text-center px-6 py-4 text-sm font-semibold text-gray-600">Quantité</th>
+          <th class="text-center px-6 py-4 text-sm font-semibold text-gray-600">État</th>
+          <th class="text-center px-6 py-4 text-sm font-semibold text-gray-600">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let s of stocks" class="border-b border-gray-100 hover:bg-gray-50 transition">
+          <!-- Produit (photo + nom) -->
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-3">
+              <img *ngIf="s.id_produit.photo" [src]="s.id_produit.photo" [alt]="s.id_produit.nom"
+                class="w-12 h-12 rounded-lg object-cover border border-gray-200" />
+              <div *ngIf="!s.id_produit.photo"
+                class="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-xl text-gray-300">📷</div>
+              <div>
+                <p class="font-semibold text-gray-800">{{ s.id_produit.nom }}</p>
+                <span [ngClass]="getStatutClass(s.id_produit.statut)"
+                  class="text-xs font-bold px-2 py-0.5 rounded-full">
+                  {{ getStatutLabel(s.id_produit.statut) }}
+                </span>
+              </div>
+            </div>
+          </td>
+          <!-- Type -->
+          <td class="px-6 py-4">
+            <span class="inline-block bg-blue-50 text-blue-700 text-xs font-semibold px-2.5 py-1 rounded-full">
+              {{ s.id_produit.type }}
+            </span>
+          </td>
+          <!-- Prix unitaire -->
+          <td class="px-6 py-4 text-center font-semibold text-gray-700">
+            {{ s.id_produit.prix_unitaire | number }} Ar
+          </td>
+          <!-- Quantité -->
+          <td class="px-6 py-4 text-center">
+            <span class="text-2xl font-bold" [ngClass]="getStockLevelClass(s.quantite)">
+              {{ s.quantite }}
+            </span>
+          </td>
+          <!-- État -->
+          <td class="px-6 py-4 text-center">
+            <span [ngClass]="getStockLevelClass(s.quantite)"
+              class="text-xs font-bold px-3 py-1 rounded-full">
+              {{ getStockLevelLabel(s.quantite) }}
+            </span>
+          </td>
+          <!-- Actions -->
+          <td class="px-6 py-4 text-center">
+            <button (click)="openEdit(s)"
+              class="bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-semibold px-4 py-2 rounded-lg transition text-sm">
+              ✏️ Modifier
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Résumé -->
+  <div *ngIf="!isLoading && stocks.length > 0"
+    class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
+      <p class="text-sm text-green-700 font-medium">En stock</p>
+      <p class="text-2xl font-bold text-green-600">{{ stocks.length }}</p>
+      <p class="text-xs text-green-500">produit(s)</p>
+    </div>
+    <div class="bg-orange-50 border border-orange-200 rounded-xl p-4 text-center">
+      <p class="text-sm text-orange-700 font-medium">Stock faible (≤5)</p>
+      <p class="text-2xl font-bold text-orange-600">{{ countStockFaible() }}</p>
+      <p class="text-xs text-orange-500">produit(s)</p>
+    </div>
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4 text-center">
+      <p class="text-sm text-red-700 font-medium">Rupture de stock</p>
+      <p class="text-2xl font-bold text-red-600">{{ countRupture() }}</p>
+      <p class="text-xs text-red-500">produit(s)</p>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ajouter du stock -->
+<div *ngIf="showAjoutModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4">
+    <div class="flex justify-between items-center p-6 border-b border-gray-100">
+      <h3 class="text-xl font-bold text-gray-800">➕ Ajouter du stock</h3>
+      <button (click)="closeAjout()" class="text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
+    </div>
+
+    <form (ngSubmit)="submitAjout()" class="p-6 space-y-5">
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Produit *</label>
+        <select [(ngModel)]="ajoutProduitId" name="ajoutProduit" required
+          class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-white">
+          <option value="" disabled>-- Choisir un produit --</option>
+          <option *ngFor="let p of produitsSansStock" [value]="p._id">{{ p.nom }} ({{ p.type }})</option>
+          <option *ngFor="let s of stocks" [value]="s.id_produit._id">{{ s.id_produit.nom }} ({{ s.id_produit.type }}) — stock actuel: {{ s.quantite }}</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Quantité à ajouter *</label>
+        <input type="number" [(ngModel)]="ajoutQuantite" name="ajoutQuantite" min="1" required
+          class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+          placeholder="1" />
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit" [disabled]="ajoutLoading"
+          class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 rounded-xl transition shadow-md">
+          <span *ngIf="!ajoutLoading">Ajouter</span>
+          <span *ngIf="ajoutLoading">Ajout en cours...</span>
+        </button>
+        <button type="button" (click)="closeAjout()"
+          class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl transition">
+          Annuler
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Modifier quantité -->
+<div *ngIf="showEditModal && editStock" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4">
+    <div class="flex justify-between items-center p-6 border-b border-gray-100">
+      <h3 class="text-xl font-bold text-gray-800">✏️ Modifier le stock</h3>
+      <button (click)="closeEditStock()" class="text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
+    </div>
+
+    <div class="p-6 space-y-5">
+      <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl">
+        <img *ngIf="editStock.id_produit.photo" [src]="editStock.id_produit.photo"
+          class="w-14 h-14 rounded-lg object-cover border" />
+        <div *ngIf="!editStock.id_produit.photo"
+          class="w-14 h-14 rounded-lg bg-gray-200 flex items-center justify-center text-2xl">📷</div>
+        <div>
+          <p class="font-bold text-gray-800">{{ editStock.id_produit.nom }}</p>
+          <p class="text-sm text-gray-500">Stock actuel : <strong>{{ editStock.quantite }}</strong></p>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Nouvelle quantité *</label>
+        <input type="number" [(ngModel)]="editQuantite" min="0"
+          class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button (click)="submitEditStock()" [disabled]="editLoading"
+          class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 rounded-xl transition shadow-md">
+          <span *ngIf="!editLoading">Enregistrer</span>
+          <span *ngIf="editLoading">Mise à jour...</span>
+        </button>
+        <button (click)="closeEditStock()"
+          class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl transition">
+          Annuler
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

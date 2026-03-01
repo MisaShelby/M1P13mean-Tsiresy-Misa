@@ -77,7 +77,10 @@ const loginBoutique = async (req, res) => {
       try {
             const { nom_boutique, mdp } = req.body;
 
-            const boutique = await Boutique.findOne({ nom_boutique }).select('+mdp');
+            const boutique = await Boutique
+                  .findOne({ nom_boutique })
+                  .select('+mdp')
+                  .populate('commission_type');
 
             if (!boutique) {
                   return res.status(401).json({

@@ -10,7 +10,12 @@ export interface Boutique {
     email: string;
     nom_gerant: string;
     telephone_gerant: string;
-    commission_type?: string | null;
+    commission_type?: {
+        _id: string;
+        nom: string;
+        tarif: number;
+        description?: string;
+    } | null;
     portefeuille: number;
     createdAt: string;
     updatedAt: string;

@@ -6,9 +6,11 @@ const validateRequest = require('../middlewares/validate');
 const { protect } = require('../middlewares/auth.middleware');
 const { registerBoutique, loginBoutique } = require('../controller/boutiqueController/authBoutiqueController');
 const { registerAdmin, loginAdmin, getBoutiquesEnAttente, validerBoutique, refuserBoutique } = require('../controller/adminController/authAdminController');
-const { getProduit, addProduit } = require('../controller/boutiqueController/produitController');
+const { getProduit, addProduit, updateProduit } = require('../controller/boutiqueController/produitController');
+const { getStocksByBoutique, updateStock, ajouterStock } = require('../controller/boutiqueController/StockController');
+const { addPromotion, getPromotionsByProduit, getAllPromotions, updatePromotion, deletePromotion } = require('../controller/boutiqueController/promotionController');
 const commissionTypeController = require('../controller/boutiqueController/ComissionController');
-const { souscriptionPremierMois, getMonAbonnement } = require('../controller/boutiqueController/abonnementController');
+const { souscriptionPremierMois, getMonAbonnement, changerAbonnement, rechargerPortefeuille } = require('../controller/boutiqueController/abonnementController');
 
 router.post('/register',
       validateUserRegistration,
@@ -61,11 +63,18 @@ router.post('/refut-inscri-boutique',
       refuserBoutique
 );
 router.get('/liste-produit',
+      protect,
       getProduit
 );
 
-router.post('create-produit',
+router.post('/create-produit',
+      protect,
       addProduit
+)
+
+router.put('/update-produit/:id',
+      protect,
+      updateProduit
 )
 
 router.get('/profile', protect, getProfile);
@@ -76,10 +85,24 @@ router.get('/commissionType/:id', commissionTypeController.getCommissionTypeById
 router.put('/commissionType/:id', commissionTypeController.updateCommissionType);
 router.delete('/commissionType/:id', commissionTypeController.deleteCommissionType);
 
-// Premier lancement boutique : choisir type de commission + payer premier mois
 router.post('/boutique-setup', protect, souscriptionPremierMois);
 
-// Abonnement de la boutique connectée
 router.get('/mon-abonnement', protect, getMonAbonnement);
+
+router.put('/changer-abonnement', protect, changerAbonnement);
+
+router.post('/recharger-portefeuille', protect, rechargerPortefeuille);
+
+// Stock
+router.get('/stocks', protect, getStocksByBoutique);
+router.put('/stock', protect, updateStock);
+router.post('/stock/ajouter', protect, ajouterStock);
+
+// Promotions
+router.post('/promotion', protect, addPromotion);
+router.get('/promotions', protect, getAllPromotions);
+router.get('/promotions/:id_produit', protect, getPromotionsByProduit);
+router.put('/promotion/:id', protect, updatePromotion);
+router.delete('/promotion/:id', protect, deletePromotion);
 
 module.exports = router;

@@ -45,7 +45,22 @@ app.get('/test', (req, res) => {
       });
 });
 const connectDB = require('./config/db.config');
-connectDB().then(() => {
+const CommissionType = require('./models/CommissionType');
+
+async function seedCommissionGratuit() {
+      const exists = await CommissionType.findOne({ nom: 'Gratuit' });
+      if (!exists) {
+            await CommissionType.create({
+                  nom: 'Gratuit',
+                  tarif: 0,
+                  description: 'Plan gratuit'
+            });
+            console.log('Commission "Gratuit" créée avec succès');
+      }
+}
+
+connectDB().then(async () => {
+      await seedCommissionGratuit();
       app.listen(PORT);
 }).catch((error) => {
       process.exit(1);

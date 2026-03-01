@@ -1,110 +1,216 @@
 <div class="max-w-4xl mx-auto py-8 px-4 space-y-6">
-
-  <!-- Loading -->
-  <div *ngIf="isLoading" class="flex justify-center py-20">
-    <div class="w-12 h-12 border-4 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
-  </div>
-
-  <ng-container *ngIf="!isLoading">
-
-    <!-- Portefeuille card -->
-    <div class="bg-gradient-to-r from-primary-800 to-secondary-600 rounded-2xl p-6 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div>
-        <p class="text-primary-200 text-sm font-medium uppercase tracking-widest">Mon portefeuille</p>
-        <p class="text-4xl font-extrabold mt-1">{{ boutique?.portefeuille ?? 0 | number }} <span class="text-xl font-normal">Ar</span></p>
-      </div>
-      <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-        </svg>
-      </div>
+    <div *ngIf="isLoading" class="flex justify-center py-20">
+        <div class="w-12 h-12 border-4 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
     </div>
 
-    <!-- Abonnement actif -->
-    <div *ngIf="abonnement; else noAbonnement" class="bg-white rounded-2xl shadow-lg overflow-hidden">
-      <div class="bg-green-50 border-b border-green-200 px-6 py-4 flex items-center justify-between">
-        <h2 class="text-lg font-bold text-neutral-800 flex items-center gap-2">
-          <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          Abonnement actif
-        </h2>
-        <span class="text-xs font-bold bg-green-100 text-green-700 px-3 py-1 rounded-full uppercase">
-          {{ abonnement.statut }}
-        </span>
-      </div>
+    <ng-container *ngIf="!isLoading">
 
-      <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <!-- Plan -->
-        <div class="space-y-1">
-          <p class="text-xs text-neutral-500 uppercase tracking-widest font-medium">Plan</p>
-          <p class="text-xl font-bold text-primary-700">{{ abonnement.id_commission_type.nom }}</p>
-          <p *ngIf="abonnement.id_commission_type.description" class="text-sm text-neutral-500">
-            {{ abonnement.id_commission_type.description }}
-          </p>
+        <div class="bg-gradient-to-r from-primary-800 to-secondary-600 rounded-2xl p-6 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+                <p class="text-primary-200 text-sm font-medium uppercase tracking-widest">Mon portefeuille</p>
+                <p class="text-4xl font-extrabold mt-1">{{ boutique?.portefeuille ?? 0 | number }} <span class="text-xl font-normal">Ar</span></p>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+            </div>
         </div>
-        <!-- Tarif -->
-        <div class="space-y-1">
-          <p class="text-xs text-neutral-500 uppercase tracking-widest font-medium">Tarif mensuel</p>
-          <p class="text-2xl font-extrabold text-neutral-800">{{ abonnement.id_commission_type.tarif | number }} <span class="text-sm font-normal text-neutral-500">Ar</span></p>
+
+        <div class="flex justify-end">
+            <button
+                (click)="togglePortefeuille()"
+                class="px-4 py-2 rounded-lg font-semibold text-sm transition-all"
+                [class]="showPortefeuille 
+      ? 'bg-neutral-200 text-neutral-700 hover:bg-neutral-300'
+      : 'bg-primary-600 text-white hover:bg-primary-700 shadow'">
+                {{ showPortefeuille ? 'Fermer le portefeuille' : 'Recharger le portefeuille' }}
+            </button>
         </div>
-        <!-- Début -->
-        <div class="space-y-1">
-          <p class="text-xs text-neutral-500 uppercase tracking-widest font-medium">Début de l'abonnement</p>
-          <p class="text-base font-semibold text-neutral-700">{{ abonnement.date_debut | date:'dd/MM/yyyy' }}</p>
+
+        <div *ngIf="showPortefeuille" class="mt-4">
+            <app-porte-feuille-boutique
+                [soldeActuel]="boutique?.portefeuille ?? 0"
+                (rechargeEffectuee)="onRechargeEffectuee($event)">
+            </app-porte-feuille-boutique>
         </div>
-        <!-- Prochain paiement -->
-        <div class="space-y-1">
-          <p class="text-xs text-neutral-500 uppercase tracking-widest font-medium">Prochain paiement</p>
-          <p class="text-base font-semibold text-neutral-700">{{ abonnement.prochain_paiement | date:'dd/MM/yyyy' }}</p>
-          <p class="text-sm" [class.text-orange-500]="joursRestants() <= 7" [class.text-neutral-500]="joursRestants() > 7">
-            {{ joursRestants() }} jour(s) restant(s)
-          </p>
+
+        <div *ngIf="abonnement; else noAbonnement" class="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div class="bg-green-50 border-b border-green-200 px-6 py-4 flex items-center justify-between">
+                <h2 class="text-lg font-bold text-neutral-800 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Abonnement actif
+                </h2>
+                <span class="text-xs font-bold bg-green-100 text-green-700 px-3 py-1 rounded-full uppercase">
+                    {{ abonnement.statut }}
+                </span>
+            </div>
+
+            <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div class="space-y-1">
+                    <p class="text-xs text-neutral-500 uppercase tracking-widest font-medium">Plan</p>
+                    <p class="text-xl font-bold text-primary-700">{{ abonnement.id_commission_type.nom }}</p>
+                    <p *ngIf="abonnement.id_commission_type.description" class="text-sm text-neutral-500">
+                        {{ abonnement.id_commission_type.description }}
+                    </p>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-xs text-neutral-500 uppercase tracking-widest font-medium">Tarif mensuel</p>
+                    <p class="text-2xl font-extrabold text-neutral-800">{{ abonnement.id_commission_type.tarif | number }} <span class="text-sm font-normal text-neutral-500">Ar</span></p>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-xs text-neutral-500 uppercase tracking-widest font-medium">Début de l'abonnement</p>
+                    <p class="text-base font-semibold text-neutral-700">{{ abonnement.date_debut | date:'dd/MM/yyyy' }}</p>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-xs text-neutral-500 uppercase tracking-widest font-medium">Prochain paiement</p>
+                    <p class="text-base font-semibold text-neutral-700">{{ abonnement.prochain_paiement | date:'dd/MM/yyyy' }}</p>
+                    <p class="text-sm" [class.text-orange-500]="joursRestants() <= 7" [class.text-neutral-500]="joursRestants() > 7">
+                        {{ joursRestants() }} jour(s) restant(s)
+                    </p>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Pas d'abonnement -->
-    <ng-template #noAbonnement>
-      <div class="bg-yellow-50 border border-yellow-300 rounded-2xl p-6 text-center text-yellow-700">
-        <svg class="w-10 h-10 mx-auto mb-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <p class="font-bold text-lg">Aucun abonnement actif</p>
-        <p class="text-sm mt-1">Contactez l'administration pour activer votre abonnement.</p>
-      </div>
-    </ng-template>
+        <ng-template #noAbonnement>
+            <div class="bg-yellow-50 border border-yellow-300 rounded-2xl p-6 text-center text-yellow-700">
+                <svg class="w-10 h-10 mx-auto mb-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="font-bold text-lg">Aucun abonnement actif</p>
+                <p class="text-sm mt-1">Contactez l'administration pour activer votre abonnement.</p>
+            </div>
+        </ng-template>
 
-    <!-- Historique des paiements -->
-    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-      <div class="px-6 py-4 border-b border-neutral-200">
-        <h2 class="text-lg font-bold text-neutral-800">Historique des paiements</h2>
-      </div>
+        <div *ngIf="changeSuccess" class="bg-green-50 border border-green-300 rounded-xl p-4 flex items-center gap-3 text-green-700">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p class="text-sm font-medium">{{ changeSuccess }}</p>
+        </div>
 
-      <div *ngIf="paiements.length === 0" class="px-6 py-8 text-center text-neutral-400">
-        Aucun paiement enregistré.
-      </div>
+        <div *ngIf="changeError" class="bg-red-50 border border-red-300 rounded-xl p-4 flex items-center gap-3 text-red-700">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p class="text-sm font-medium">{{ changeError }}</p>
+        </div>
 
-      <table *ngIf="paiements.length > 0" class="w-full text-sm">
-        <thead class="bg-neutral-50 text-neutral-500 uppercase text-xs">
-          <tr>
-            <th class="px-6 py-3 text-left font-semibold">#</th>
-            <th class="px-6 py-3 text-left font-semibold">Date</th>
-            <th class="px-6 py-3 text-right font-semibold">Montant</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-neutral-100">
-          <tr *ngFor="let p of paiements; let i = index" class="hover:bg-neutral-50 transition-colors">
-            <td class="px-6 py-3 text-neutral-500">{{ i + 1 }}</td>
-            <td class="px-6 py-3 text-neutral-700 font-medium">{{ p.date_paiement | date:'dd/MM/yyyy HH:mm' }}</td>
-            <td class="px-6 py-3 text-right font-bold text-primary-700">{{ p.tarif | number }} Ar</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+        <div *ngIf="abonnement" class="flex justify-center">
+            <button (click)="toggleChangePlan()"
+                class="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200"
+                [class]="showChangePlanSection
+          ? 'bg-neutral-200 text-neutral-700 hover:bg-neutral-300'
+          : 'bg-primary-600 text-white hover:bg-primary-700 shadow-lg hover:shadow-xl'">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                {{ showChangePlanSection ? 'Annuler' : 'Changer de plan' }}
+            </button>
+        </div>
 
-  </ng-container>
+        <div *ngIf="showChangePlanSection" class="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-neutral-200 bg-primary-50">
+                <h2 class="text-lg font-bold text-neutral-800 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                    Plans disponibles
+                </h2>
+                <p class="text-sm text-neutral-500 mt-1">Sélectionnez un nouveau plan. Le tarif sera déduit de votre portefeuille.</p>
+            </div>
+
+            <div class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div *ngFor="let plan of commissionTypes"
+                    (click)="selectPlan(plan._id)"
+                    class="relative rounded-xl border-2 p-5 cursor-pointer transition-all duration-200"
+                    [class.border-primary-500]="selectedPlanId === plan._id"
+                    [class.bg-primary-50]="selectedPlanId === plan._id"
+                    [class.shadow-md]="selectedPlanId === plan._id"
+                    [class.border-neutral-200]="selectedPlanId !== plan._id && !isCurrentPlan(plan._id)"
+                    [class.hover:border-primary-300]="!isCurrentPlan(plan._id)"
+                    [class.border-green-300]="isCurrentPlan(plan._id)"
+                    [class.bg-green-50]="isCurrentPlan(plan._id)"
+                    [class.cursor-default]="isCurrentPlan(plan._id)">
+
+                    <span *ngIf="isCurrentPlan(plan._id)"
+                        class="absolute -top-2 right-3 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">
+                        Actuel
+                    </span>
+
+                    <span *ngIf="selectedPlanId === plan._id && !isCurrentPlan(plan._id)"
+                        class="absolute -top-2 right-3 bg-primary-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">
+                        Sélectionné
+                    </span>
+
+                    <p class="text-lg font-bold text-neutral-800">{{ plan.nom }}</p>
+                    <p class="text-2xl font-extrabold mt-2"
+                        [class.text-primary-700]="!isCurrentPlan(plan._id)"
+                        [class.text-green-700]="isCurrentPlan(plan._id)">
+                        {{ plan.tarif | number }} <span class="text-sm font-normal text-neutral-500">Ar/mois</span>
+                    </p>
+                    <p *ngIf="plan.description" class="text-sm text-neutral-500 mt-2">{{ plan.description }}</p>
+                </div>
+            </div>
+
+            <div *ngIf="selectedPlanId" class="px-6 pb-6">
+                <div class="bg-primary-50 border border-primary-200 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                        <p class="text-sm text-neutral-600">
+                            Vous allez changer vers le plan
+                            <span class="font-bold text-primary-700">{{ getSelectedPlanNom() }}</span>
+                        </p>
+                        <p class="text-xs text-neutral-500 mt-1">
+                            Le montant de <strong>{{ getSelectedPlanTarif() | number }} Ar</strong> sera déduit de votre portefeuille
+                            (solde actuel : {{ boutique?.portefeuille ?? 0 | number }} Ar)
+                        </p>
+                    </div>
+                    <button (click)="confirmerChangement()"
+                        [disabled]="changingPlan"
+                        class="px-6 py-2.5 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 whitespace-nowrap">
+                        <svg *ngIf="changingPlan" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                        {{ changingPlan ? 'En cours...' : 'Confirmer le changement' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-neutral-200">
+                <h2 class="text-lg font-bold text-neutral-800">Historique des paiements</h2>
+            </div>
+
+            <div *ngIf="paiements.length === 0" class="px-6 py-8 text-center text-neutral-400">
+                Aucun paiement enregistré.
+            </div>
+
+            <table *ngIf="paiements.length > 0" class="w-full text-sm">
+                <thead class="bg-neutral-50 text-neutral-500 uppercase text-xs">
+                    <tr>
+                        <th class="px-6 py-3 text-left font-semibold">#</th>
+                        <th class="px-6 py-3 text-left font-semibold">Date</th>
+                        <th class="px-6 py-3 text-right font-semibold">Montant</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-neutral-100">
+                    <tr *ngFor="let p of paiements; let i = index" class="hover:bg-neutral-50 transition-colors">
+                        <td class="px-6 py-3 text-neutral-500">{{ i + 1 }}</td>
+                        <td class="px-6 py-3 text-neutral-700 font-medium">{{ p.date_paiement | date:'dd/MM/yyyy HH:mm' }}</td>
+                        <td class="px-6 py-3 text-right font-bold text-primary-700">{{ p.tarif | number }} Ar</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </ng-container>
 </div>
