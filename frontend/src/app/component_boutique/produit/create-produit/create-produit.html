@@ -1,1 +1,169 @@
-<p>create-produit works!</p>
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-lg p-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+            <span class="text-3xl">📦</span> Ajouter un produit
+        </h2>
+
+        <form (ngSubmit)="onSubmit()" class="space-y-5">
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Nom du produit *</label>
+                <input type="text" [(ngModel)]="produit.nom" name="nom" required
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    placeholder="Ex: Riz blanc 25kg" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Photo du produit</label>
+                <div class="flex items-center gap-4">
+                    <label
+                        class="cursor-pointer bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium px-4 py-2 rounded-lg border border-blue-200 transition">
+                        <span>📷 Choisir une image</span>
+                        <input type="file" accept="image/*" (change)="onPhotoChange($event)" class="hidden" />
+                    </label>
+                    <button *ngIf="photoPreview" type="button" (click)="removePhoto()"
+                        class="text-red-500 hover:text-red-700 text-sm font-medium transition">
+                        ✕ Supprimer
+                    </button>
+                </div>
+                <div *ngIf="photoPreview" class="mt-3">
+                    <img [src]="photoPreview" alt="Aperçu"
+                        class="w-40 h-40 object-cover rounded-xl border-2 border-gray-200 shadow-sm" />
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Type *</label>
+                <select [(ngModel)]="produit.type" name="type" required
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-white">
+                    <option value disabled>-- Sélectionner un type --</option>
+                    <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Prix unitaire (Ar) *</label>
+                <input type="number" [(ngModel)]="produit.prix_unitaire" name="prix_unitaire" min="0" required
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    placeholder="0" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Description</label>
+                <textarea [(ngModel)]="produit.description" name="description" rows="3"
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-none"
+                    placeholder="Description du produit..."></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Statut</label>
+                <div class="flex items-center gap-4">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" [(ngModel)]="produit.statut" name="statut" [value]="1"
+                            class="w-4 h-4 text-green-600 focus:ring-green-500" />
+                        <span class="text-sm text-gray-700">🟢 Activé</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" [(ngModel)]="produit.statut" name="statut" [value]="0"
+                            class="w-4 h-4 text-red-600 focus:ring-red-500" />
+                        <span class="text-sm text-gray-700">🔴 Désactivé</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Section Promotions -->
+            <div class="border-t border-gray-200 pt-5">
+                <div class="flex items-center justify-between mb-3">
+                    <label class="block text-sm font-semibold text-gray-700">Promotions</label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" [(ngModel)]="ajouterPromo" name="ajouterPromo"
+                            class="w-4 h-4 text-purple-600 focus:ring-purple-500 rounded" />
+                        <span class="text-sm text-gray-600">Ajouter des promotions</span>
+                    </label>
+                </div>
+
+                <div *ngIf="ajouterPromo" class="space-y-4">
+                    <div *ngFor="let promo of promotions; let i = index"
+                        class="bg-purple-50 border border-purple-200 rounded-xl p-4 space-y-3 relative">
+                        <button type="button" (click)="removePromotionRow(i)"
+                            class="absolute top-2 right-2 text-red-400 hover:text-red-600 text-lg font-bold">&times;</button>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Type de promotion</label>
+                            <select [(ngModel)]="promo.type_promotion" [name]="'promoType' + i"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition bg-white">
+                                <option value="POURCENTAGE">Promotion % (réduction)</option>
+                                <option value="ACHETE_OFFERT">1 acheté = 1 offert</option>
+                                <option value="CODE_PROMO">Code promo</option>
+                            </select>
+                        </div>
+
+                        <div *ngIf="promo.type_promotion === 'POURCENTAGE'">
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Pourcentage de réduction</label>
+                            <div class="flex items-center gap-2">
+                                <input type="number" [(ngModel)]="promo.pourcentage" [name]="'promoPourc' + i"
+                                    min="1" max="100" placeholder="Ex: 10"
+                                    class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition" />
+                                <span class="text-sm font-bold text-gray-500">%</span>
+                            </div>
+                        </div>
+
+                        <div *ngIf="promo.type_promotion === 'ACHETE_OFFERT'"
+                            class="bg-green-50 text-green-700 text-sm font-medium px-3 py-2 rounded-lg">
+                            🎁 Le client achète 1 produit et en reçoit 1 gratuitement
+                        </div>
+
+                        <div *ngIf="promo.type_promotion === 'CODE_PROMO'" class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Code promo</label>
+                                <input type="text" [(ngModel)]="promo.code_promo" [name]="'promoCode' + i"
+                                    placeholder="Ex: BOBO2024"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Pourcentage de réduction</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="number" [(ngModel)]="promo.pourcentage" [name]="'promoCodePourc' + i"
+                                        min="1" max="100" placeholder="Ex: 5"
+                                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition" />
+                                    <span class="text-sm font-bold text-gray-500">%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dates de validité -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">📅 Date début *</label>
+                                <input type="date" [(ngModel)]="promo.date_debut" [name]="'promoDateDebut' + i"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">📅 Date fin *</label>
+                                <input type="date" [(ngModel)]="promo.date_fin" [name]="'promoDateFin' + i"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" (click)="addPromotionRow()"
+                        class="w-full border-2 border-dashed border-purple-300 hover:border-purple-500 text-purple-600 hover:text-purple-700 font-medium py-2.5 rounded-xl transition text-sm flex items-center justify-center gap-2">
+                        ➕ Ajouter une promotion
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex gap-3 pt-4">
+                <button type="submit" [disabled]="isLoading"
+                    class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 rounded-xl transition shadow-md">
+                    <span *ngIf="!isLoading">Créer le produit</span>
+                    <span *ngIf="isLoading">Création en cours...</span>
+                </button>
+                <button type="button" (click)="goToListeProduit()"
+                    class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl transition">
+                    Annuler
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

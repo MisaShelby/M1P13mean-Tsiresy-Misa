@@ -13,6 +13,9 @@ import { boutiqueAuthGuard } from './guards/boutique-auth.guard';
 import { CommissionTypeComponent } from './auth/admin/commission-type/commission-type.component';
 import { BoutiqueSetupComponent } from './auth/boutique/boutique-setup/boutique-setup';
 import { MonAbonnementComponent } from './component_boutique/mon-abonnement/mon-abonnement';
+import { CreateProduit } from './component_boutique/produit/create-produit/create-produit';
+import { ListProduit } from './component_boutique/produit/list-produit/list-produit';
+import { StockProduit } from './component_boutique/produit/stock-produit/stock-produit';
 
 export const routes: Routes = [
     { path: '', redirectTo: '/accueil-general', pathMatch: 'full' },
@@ -35,6 +38,9 @@ export const routes: Routes = [
     { path: 'inscription-boutique', component: InscriptionBoutique },
     { path: 'boutique-setup', component: BoutiqueSetupComponent, canActivate: [boutiqueAuthGuard] },
     { path: 'mon-abonnement', component: MonAbonnementComponent, canActivate: [boutiqueAuthGuard] },
+    { path: 'create-produit', component: CreateProduit, canActivate: [boutiqueAuthGuard] },
+    { path: 'liste-produit', component: ListProduit, canActivate: [boutiqueAuthGuard] },
+    { path: 'stock-produit', component: StockProduit, canActivate: [boutiqueAuthGuard] },
     { path: 'typecommission', component: CommissionTypeComponent },
     { path: 'login-boutique', component: LoginBoutique },
     { path: 'inscription-admin', component: InscriptionAdmin },

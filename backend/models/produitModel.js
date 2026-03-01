@@ -33,6 +33,11 @@ const produitSchema = new mongoose.Schema({
             enum: [0, 1], // 0 = désactivé, 1 = activé
             default: 1,
             required: true
+      },
+      boutique: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Boutique",
+            required: [true, "La boutique est obligatoire"]
       }
 }, {
       timestamps: true

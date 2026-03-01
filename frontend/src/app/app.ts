@@ -20,6 +20,7 @@ export class App implements OnInit {
     hideHeaderFooter = false;
     isScrolled = false;
     userType: UserType = null;
+    showProduitMenu = false;
 
     constructor(
         private router: Router,
@@ -101,4 +102,20 @@ export class App implements OnInit {
         if (!b) return 0;
         try { return JSON.parse(b).portefeuille ?? 0; } catch { return 0; }
     }
+
+    getBoutiqueCommission(): string {
+        const b = localStorage.getItem('boutique');
+        if (!b) return 'Aucune';
+        try {
+            const boutique = JSON.parse(b);
+            return boutique.commission_type?.nom ?? 'Non définie';
+        } catch {
+            return 'Non définie';
+        }
+    }
+    
+    toggleProduitMenu() {
+        this.showProduitMenu = !this.showProduitMenu;
+    }
+
 }
