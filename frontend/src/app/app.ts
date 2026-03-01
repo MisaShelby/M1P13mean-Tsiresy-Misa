@@ -97,6 +97,30 @@ export class App implements OnInit {
             || !!localStorage.getItem('admin');
     }
 
+    getUserDisplayName(): string {
+        if (this.userType === 'admin') {
+            const a = localStorage.getItem('admin');
+            if (!a) return '';
+            try { return JSON.parse(a).nom_complet ?? ''; } catch { return ''; }
+        } else if (this.userType === 'boutique') {
+            const b = localStorage.getItem('boutique');
+            if (!b) return '';
+            try { return JSON.parse(b).nom_boutique ?? ''; } catch { return ''; }
+        } else if (this.userType === 'client') {
+            const u = localStorage.getItem('user');
+            if (!u) return '';
+            try { return JSON.parse(u).nom_complet ?? ''; } catch { return ''; }
+        }
+        return '';
+    }
+
+    getUserRoleLabel(): string {
+        if (this.userType === 'admin') return 'Administrateur';
+        if (this.userType === 'boutique') return 'Boutique';
+        if (this.userType === 'client') return 'Client';
+        return '';
+    }
+
     getBoutiquePortefeuille(): number {
         const b = localStorage.getItem('boutique');
         if (!b) return 0;

@@ -39,7 +39,7 @@ export class Login {
                     );
 
                     setTimeout(() => {
-                        this.router.navigate(['/test']);
+                        this.router.navigate(['/liste-produit-client']);
                     }, 1500);
                 } else {
                     if (response.errors) {

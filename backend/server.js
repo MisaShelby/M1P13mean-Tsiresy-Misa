@@ -15,8 +15,8 @@ app.use(cors({
       allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use('/auth', authRoutes);
 app.get('/test', (req, res) => {
       const mongoStatus = mongoose.connection.readyState;

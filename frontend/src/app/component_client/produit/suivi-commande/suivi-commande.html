@@ -1,0 +1,309 @@
+<div class="max-w-5xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+                    <mat-icon class="text-green-600 text-4xl">local_shipping</mat-icon>
+                    Suivi de mes commandes
+                </h1>
+                <p class="text-gray-500 mt-1">Suivez l'état de vos commandes en temps réel</p>
+            </div>
+            <div class="flex gap-3">
+                <button (click)="retourPaniers()"
+                    class="flex items-center gap-2 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl transition shadow-md">
+                    <mat-icon>shopping_cart</mat-icon>
+                    Mes Paniers
+                </button>
+                <button (click)="retourProduits()"
+                    class="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition shadow-md">
+                    <mat-icon>storefront</mat-icon>
+                    Produits
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="flex justify-center items-center py-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-green-500 border-solid border-gray-200"></div>
+        <span class="ml-4 text-gray-500 text-lg">Chargement de vos commandes...</span>
+    </div>
+
+    <!-- Aucune commande -->
+    <div *ngIf="!loading && commandes.length === 0"
+        class="text-center py-20 bg-white rounded-2xl shadow-lg border border-gray-100">
+        <mat-icon class="text-gray-300 text-6xl mb-4">receipt_long</mat-icon>
+        <p class="text-xl text-gray-500">Vous n'avez aucune commande</p>
+        <p class="text-gray-400 mt-2">Passez une commande depuis vos paniers</p>
+        <button (click)="retourPaniers()"
+            class="mt-4 inline-flex items-center gap-2 px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl transition">
+            <mat-icon>shopping_cart</mat-icon>
+            Voir mes paniers
+        </button>
+    </div>
+
+    <!-- Résumé -->
+    <div *ngIf="!loading && commandes.length > 0"
+        class="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-2xl p-6 mb-6 shadow-lg">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+            <div>
+                <p class="text-green-100 text-sm">Total commandes</p>
+                <p class="text-3xl font-bold">{{ commandes.length }}</p>
+            </div>
+            <div class="flex gap-6">
+                <div class="text-center">
+                    <p class="text-2xl font-bold">{{ countByStatut('en cours de preparation') }}</p>
+                    <p class="text-green-100 text-xs">En préparation</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-2xl font-bold">{{ countByStatut('expedie') }}</p>
+                    <p class="text-green-100 text-xs">Expédiées</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-2xl font-bold">{{ countByStatut('deja livre') }}</p>
+                    <p class="text-green-100 text-xs">Livrées</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des commandes -->
+    <div *ngIf="!loading && commandes.length > 0" class="space-y-4">
+        <div *ngFor="let commande of commandes"
+            class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+
+            <!-- Header de la commande -->
+            <div (click)="toggleCommande(commande._id)"
+                class="flex items-center justify-between p-5 cursor-pointer hover:bg-gray-50 transition-colors">
+                <div class="flex items-center gap-4">
+                    <!-- Icone statut -->
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center"
+                        [ngClass]="{
+                            'bg-orange-100': commande.statut === 'en cours de preparation',
+                            'bg-blue-100': commande.statut === 'expedie',
+                            'bg-green-100': commande.statut === 'deja livre'
+                        }">
+                        <mat-icon [ngClass]="{
+                            'text-orange-600': commande.statut === 'en cours de preparation',
+                            'text-blue-600': commande.statut === 'expedie',
+                            'text-green-600': commande.statut === 'deja livre'
+                        }">
+                            {{ commande.statut === 'en cours de preparation' ? 'inventory_2' :
+                               commande.statut === 'expedie' ? 'local_shipping' : 'check_circle' }}
+                        </mat-icon>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-800">
+                            {{ commande.id_panier?.nom || 'Commande' }}
+                        </h2>
+                        <div class="flex items-center gap-3 text-sm text-gray-500">
+                            <span>{{ commande.date_commande | date:'dd/MM/yyyy à HH:mm' }}</span>
+                            <span>•</span>
+                            <span class="text-xs px-2 py-0.5 rounded-full font-semibold" [ngClass]="getPaiementClass(commande.paiement)">
+                                <mat-icon class="text-xs align-middle mr-0.5">{{ getPaiementIcon(commande.paiement) }}</mat-icon>
+                                {{ commande.paiement }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="text-xs px-3 py-1 rounded-full font-semibold" [ngClass]="getStatutBadgeClass(commande.statut)">
+                        {{ getStatutLabel(commande.statut) }}
+                    </span>
+                    <div class="text-right">
+                        <p class="text-xs text-gray-500">Total</p>
+                        <p class="text-xl font-bold text-gray-800">{{ commande.total_prix | number:'1.0-0' }} Ar</p>
+                    </div>
+                    <mat-icon class="text-gray-400 transition-transform duration-300"
+                        [class.rotate-180]="isCommandeOuverte(commande._id)">
+                        expand_more
+                    </mat-icon>
+                </div>
+            </div>
+
+            <!-- Contenu détaillé (accordion) -->
+            <div class="transition-all duration-300 overflow-hidden"
+                [style.maxHeight]="isCommandeOuverte(commande._id) ? '3000px' : '0'"
+                [style.opacity]="isCommandeOuverte(commande._id) ? '1' : '0'">
+
+                <div class="border-t border-gray-100 p-5">
+
+                    <!-- ===== STEPPER SHEIN STYLE ===== -->
+                    <div class="mb-6">
+                        <h3 class="text-sm font-semibold text-gray-600 mb-4 uppercase tracking-wider">Suivi de la commande</h3>
+                        <div class="relative flex items-start justify-between">
+                            <!-- Ligne de fond -->
+                            <div class="absolute top-6 left-[40px] right-[40px] h-1 bg-gray-200 rounded-full z-0"></div>
+                            <!-- Ligne de progression -->
+                            <div class="absolute top-6 left-[40px] h-1 rounded-full z-10 transition-all duration-500"
+                                [ngClass]="{
+                                    'bg-orange-400': commande.statut === 'en cours de preparation',
+                                    'bg-blue-400': commande.statut === 'expedie',
+                                    'bg-green-400': commande.statut === 'deja livre'
+                                }"
+                                [ngStyle]="{
+                                    'width': commande.statut === 'en cours de preparation' ? '0%' :
+                                             commande.statut === 'expedie' ? 'calc(50% - 40px)' :
+                                             'calc(100% - 80px)'
+                                }">
+                            </div>
+
+                            <!-- Etapes -->
+                            <div *ngFor="let etape of etapes; let i = index"
+                                class="flex flex-col items-center z-20 flex-1">
+                                <!-- Cercle -->
+                                <div class="w-12 h-12 rounded-full flex items-center justify-center border-4 transition-all duration-500"
+                                    [ngClass]="{
+                                        'border-orange-500 bg-orange-500 text-white shadow-lg shadow-orange-200': isEtapeAtteinte(commande.statut, etape.statut) && etape.color === 'orange',
+                                        'border-blue-500 bg-blue-500 text-white shadow-lg shadow-blue-200': isEtapeAtteinte(commande.statut, etape.statut) && etape.color === 'blue',
+                                        'border-green-500 bg-green-500 text-white shadow-lg shadow-green-200': isEtapeAtteinte(commande.statut, etape.statut) && etape.color === 'green',
+                                        'border-gray-300 bg-white text-gray-400': !isEtapeAtteinte(commande.statut, etape.statut)
+                                    }">
+                                    <mat-icon class="text-xl">{{ etape.icon }}</mat-icon>
+                                </div>
+
+                                <!-- Label -->
+                                <p class="mt-2 text-xs font-semibold text-center max-w-[120px]"
+                                    [ngClass]="{
+                                        'text-orange-600': isEtapeActive(commande.statut, etape.statut) && etape.color === 'orange',
+                                        'text-blue-600': isEtapeActive(commande.statut, etape.statut) && etape.color === 'blue',
+                                        'text-green-600': isEtapeActive(commande.statut, etape.statut) && etape.color === 'green',
+                                        'text-gray-500': !isEtapeActive(commande.statut, etape.statut) && isEtapeAtteinte(commande.statut, etape.statut),
+                                        'text-gray-400': !isEtapeAtteinte(commande.statut, etape.statut)
+                                    }">
+                                    {{ etape.label }}
+                                </p>
+
+                                <!-- Date -->
+                                <p *ngIf="getDateEtape(commande, etape.statut) && isEtapeAtteinte(commande.statut, etape.statut)"
+                                    class="text-[10px] text-gray-400 mt-0.5">
+                                    {{ getDateEtape(commande, etape.statut) | date:'dd/MM HH:mm' }}
+                                </p>
+
+                                <!-- Indicateur actif (pulse) -->
+                                <div *ngIf="isEtapeActive(commande.statut, etape.statut)"
+                                    class="mt-1 w-2 h-2 rounded-full animate-pulse"
+                                    [ngClass]="{
+                                        'bg-orange-500': etape.color === 'orange',
+                                        'bg-blue-500': etape.color === 'blue',
+                                        'bg-green-500': etape.color === 'green'
+                                    }">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ===== INFOS COMMANDE ===== -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <!-- Mode de paiement -->
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <p class="text-xs text-gray-500 mb-1">Mode de paiement</p>
+                            <div class="flex items-center gap-2">
+                                <mat-icon [ngClass]="commande.paiement === 'Mvola' ? 'text-yellow-600' : 'text-blue-600'">
+                                    {{ getPaiementIcon(commande.paiement) }}
+                                </mat-icon>
+                                <span class="font-bold text-gray-800">{{ commande.paiement }}</span>
+                            </div>
+                            <p *ngIf="commande.date_paiement" class="text-xs text-gray-400 mt-1">
+                                Payé le {{ commande.date_paiement | date:'dd/MM/yyyy à HH:mm' }}
+                            </p>
+                        </div>
+
+                        <!-- Adresse de livraison -->
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <p class="text-xs text-gray-500 mb-1">Adresse de livraison</p>
+                            <div class="flex items-start gap-2">
+                                <mat-icon class="text-red-500 mt-0.5">location_on</mat-icon>
+                                <span class="font-semibold text-gray-800 text-sm">{{ commande.adresse_livraison || 'Non renseignée' }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Date livraison -->
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <p class="text-xs text-gray-500 mb-1">Date de livraison</p>
+                            <div class="flex items-center gap-2">
+                                <mat-icon class="text-green-500">event_available</mat-icon>
+                                <span *ngIf="commande.date_livraison" class="font-bold text-gray-800">
+                                    {{ commande.date_livraison | date:'dd/MM/yyyy' }}
+                                </span>
+                                <span *ngIf="!commande.date_livraison" class="text-gray-400 italic text-sm">
+                                    En attente
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ===== PRODUITS DE LA COMMANDE ===== -->
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wider">
+                            Produits commandés ({{ commande.nombre_produits || commande.produits?.length || 0 }})
+                        </h3>
+
+                        <div *ngIf="!commande.produits || commande.produits.length === 0"
+                            class="text-center py-6 text-gray-400">
+                            <mat-icon class="text-3xl mb-1">inventory_2</mat-icon>
+                            <p class="text-sm">Aucun produit trouvé</p>
+                        </div>
+
+                        <div *ngIf="commande.produits && commande.produits.length > 0" class="space-y-2">
+                            <div *ngFor="let pp of commande.produits"
+                                class="flex items-center gap-4 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition">
+                                <!-- Photo -->
+                                <div class="w-14 h-14 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0 flex items-center justify-center">
+                                    <img *ngIf="pp.id_produit?.photo" [src]="pp.id_produit.photo"
+                                        class="w-full h-full object-cover" />
+                                    <mat-icon *ngIf="!pp.id_produit?.photo" class="text-gray-400">inventory_2</mat-icon>
+                                </div>
+                                <!-- Info -->
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="font-semibold text-gray-800 truncate text-sm">{{ pp.id_produit?.nom || 'Produit' }}</h4>
+                                    <p class="text-xs text-gray-500">{{ pp.id_boutique?.nom_boutique || 'Boutique' }}</p>
+                                </div>
+                                <!-- Prix unitaire -->
+                                <div class="text-center">
+                                    <p class="text-xs text-gray-500">Prix unit.</p>
+                                    <p class="font-semibold text-gray-700 text-sm">{{ pp.prix_unitaire | number:'1.0-0' }} Ar</p>
+                                </div>
+                                <!-- Qté -->
+                                <div class="text-center">
+                                    <p class="text-xs text-gray-500">Qté</p>
+                                    <p class="font-bold text-gray-800">{{ pp.quantite }}</p>
+                                </div>
+                                <!-- Prix -->
+                                <div class="text-right min-w-[90px]">
+                                    <p class="text-xs text-gray-500">Sous-total</p>
+                                    <p class="font-bold text-blue-600">{{ pp.prix_unitaire * pp.quantite | number:'1.0-0' }} Ar</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Confirmation par boutique -->
+                        <div *ngIf="commande.confirmations_boutiques && commande.confirmations_boutiques.length > 0"
+                            class="mt-4 pt-3 border-t border-gray-200">
+                            <h4 class="text-xs font-semibold text-gray-500 mb-2 uppercase">Préparation par boutique</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <div *ngFor="let cb of commande.confirmations_boutiques"
+                                    class="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full font-semibold"
+                                    [ngClass]="cb.statut === 'pret' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'">
+                                    <mat-icon class="text-xs">{{ cb.statut === 'pret' ? 'check_circle' : 'pending' }}</mat-icon>
+                                    {{ cb.boutique?.nom_boutique || 'Boutique' }}
+                                    <span *ngIf="cb.statut === 'pret'">— Prêt</span>
+                                    <span *ngIf="cb.statut !== 'pret'">— En attente</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Total -->
+                        <div class="mt-4 pt-3 border-t border-gray-200 flex justify-end">
+                            <div class="text-right">
+                                <p class="text-sm text-gray-500">Total de la commande</p>
+                                <p class="text-2xl font-bold text-green-600">{{ commande.total_prix | number:'1.0-0' }} Ar</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

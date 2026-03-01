@@ -34,17 +34,17 @@
 
                 <div class="flex items-center space-x-2">
                     <mat-icon>storefront</mat-icon>
-                    <a routerLink="/liste-boutiques"
+                    <a routerLink="/liste-boutique-admin"
                         class="text-white hover:text-yellow-300 text-lg font-semibold transition-colors duration-300 pointer-events-auto">
                         Liste Boutiques
                     </a>
                 </div>
 
                 <div class="flex items-center space-x-2">
-                    <mat-icon>inventory_2</mat-icon>
-                    <a routerLink="/articles-par-boutique"
+                    <mat-icon>analytics</mat-icon>
+                    <a routerLink="/stat-admin"
                         class="text-white hover:text-yellow-300 text-lg font-semibold transition-colors duration-300 pointer-events-auto">
-                        Liste Articles par boutique
+                        Statistiques
                     </a>
                 </div>
             </div>
@@ -86,15 +86,42 @@
                         </a>
                     </div>
                 </div>
-
+                <div class="flex items-center space-x-2">
+                    <mat-icon>receipt_long</mat-icon>
+                    <a routerLink="/commandes-boutique"
+                        class="text-white hover:text-yellow-300 text-lg font-semibold transition-colors duration-300 pointer-events-auto">
+                        Liste Commandes
+                    </a>
+                </div>
             </div>
 
             <div *ngIf="isClient()" class="flex space-x-8">
                 <div class="flex items-center space-x-2">
-                    <mat-icon>shopping_cart</mat-icon>
-                    <a routerLink="#"
+                    <mat-icon>inventory_2</mat-icon>
+                    <a routerLink="/liste-produit-client"
                         class="text-white hover:text-yellow-300 text-lg font-semibold transition-colors duration-300">
-                        Mes commandes
+                        Produits
+                    </a>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <mat-icon>storefront</mat-icon>
+                    <a routerLink="/liste-boutique-client"
+                        class="text-white hover:text-yellow-300 text-lg font-semibold transition-colors duration-300">
+                        Boutiques
+                    </a>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <mat-icon>shopping_cart</mat-icon>
+                    <a routerLink="/liste-panier"
+                        class="text-white hover:text-yellow-300 text-lg font-semibold transition-colors duration-300">
+                        Mes Paniers
+                    </a>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <mat-icon>local_shipping</mat-icon>
+                    <a routerLink="/suivi-commandes"
+                        class="text-white hover:text-yellow-300 text-lg font-semibold transition-colors duration-300">
+                        Mes Commandes
                     </a>
                 </div>
             </div>
@@ -126,6 +153,16 @@
                         <span class="font-bold text-base tracking-wide">
                             {{ getBoutiqueCommission() }}
                         </span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 h-12 bg-white/10 text-white px-4 rounded-xl">
+                    <div class="bg-white/20 p-2 rounded-full flex items-center justify-center">
+                        <mat-icon class="text-white text-xl">person</mat-icon>
+                    </div>
+                    <div class="flex flex-col leading-tight">
+                        <span class="text-xs opacity-80">{{ getUserRoleLabel() }}</span>
+                        <span class="font-bold text-sm tracking-wide">{{ getUserDisplayName() }}</span>
                     </div>
                 </div>
 

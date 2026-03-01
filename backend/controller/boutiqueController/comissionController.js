@@ -1,8 +1,5 @@
 const CommissionType = require('../../models/CommissionType');
 
-// ==============================
-// CREATE
-// ==============================
 exports.createCommissionType = async (req, res) => {
     try {
         const { nom, tarif, description } = req.body;
@@ -23,9 +20,6 @@ exports.createCommissionType = async (req, res) => {
     }
 };
 
-// ==============================
-// READ ALL
-// ==============================
 exports.getAllCommissionTypes = async (req, res) => {
     try {
         const commissionTypes = await CommissionType.find().sort({ createdAt: -1 });
@@ -37,9 +31,6 @@ exports.getAllCommissionTypes = async (req, res) => {
     }
 };
 
-// ==============================
-// READ ONE
-// ==============================
 exports.getCommissionTypeById = async (req, res) => {
     try {
         const commissionType = await CommissionType.findById(req.params.id);
@@ -55,9 +46,6 @@ exports.getCommissionTypeById = async (req, res) => {
     }
 };
 
-// ==============================
-// UPDATE
-// ==============================
 exports.updateCommissionType = async (req, res) => {
     try {
         const commissionType = await CommissionType.findByIdAndUpdate(
@@ -80,9 +68,6 @@ exports.updateCommissionType = async (req, res) => {
     }
 };
 
-// ==============================
-// DELETE
-// ==============================
 exports.deleteCommissionType = async (req, res) => {
     try {
         const commissionType = await CommissionType.findByIdAndDelete(req.params.id);

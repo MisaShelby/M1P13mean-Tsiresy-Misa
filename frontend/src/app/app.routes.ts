@@ -16,6 +16,13 @@ import { MonAbonnementComponent } from './component_boutique/mon-abonnement/mon-
 import { CreateProduit } from './component_boutique/produit/create-produit/create-produit';
 import { ListProduit } from './component_boutique/produit/list-produit/list-produit';
 import { StockProduit } from './component_boutique/produit/stock-produit/stock-produit';
+import { ListeProduitClient } from './component_client/produit/liste-produit-client/liste-produit-client';
+import { ListeBoutiqueClient } from './component_client/produit/liste-boutique-client/liste-boutique-client';
+import { ListePanier } from './component_client/produit/liste-panier/liste-panier';
+import { SuiviCommande } from './component_client/produit/suivi-commande/suivi-commande';
+import { SuiviCommandeBoutique } from './component_boutique/suivi-commande-boutique/suivi-commande-boutique';
+import { ListeBoutiqueAdmin } from './auth/admin/liste-boutique-admin/liste-boutique-admin';
+import { StatAdmin } from './auth/admin/stat-admin/stat-admin';
 
 export const routes: Routes = [
     { path: '', redirectTo: '/accueil-general', pathMatch: 'full' },
@@ -41,7 +48,14 @@ export const routes: Routes = [
     { path: 'create-produit', component: CreateProduit, canActivate: [boutiqueAuthGuard] },
     { path: 'liste-produit', component: ListProduit, canActivate: [boutiqueAuthGuard] },
     { path: 'stock-produit', component: StockProduit, canActivate: [boutiqueAuthGuard] },
+    { path: 'commandes-boutique', component: SuiviCommandeBoutique, canActivate: [boutiqueAuthGuard] },
+    { path: 'liste-produit-client', component: ListeProduitClient, canActivate: [authGuard] },
+    { path: 'liste-boutique-client', component: ListeBoutiqueClient, canActivate: [authGuard] },
+    { path: 'liste-panier', component: ListePanier, canActivate: [authGuard] },
+    { path: 'suivi-commandes', component: SuiviCommande, canActivate: [authGuard] },
     { path: 'typecommission', component: CommissionTypeComponent },
+    { path: 'liste-boutique-admin', component: ListeBoutiqueAdmin },
+    { path: 'stat-admin', component: StatAdmin },
     { path: 'login-boutique', component: LoginBoutique },
     { path: 'inscription-admin', component: InscriptionAdmin },
     { path: 'login-admin', component: LoginAdmin },

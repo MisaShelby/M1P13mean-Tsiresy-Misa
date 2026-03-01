@@ -38,7 +38,7 @@ export class LoginAdmin {
                     );
 
                     setTimeout(() => {
-                        this.router.navigate(['/test']);
+                        this.router.navigate(['/stat-admin']);
                     }, 1500);
                 } else {
                     if (response.errors) {
