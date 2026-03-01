@@ -1,0 +1,251 @@
+<div class="max-w-5xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+                    <mat-icon class="text-indigo-600 text-4xl">receipt_long</mat-icon>
+                    Commandes à préparer
+                </h1>
+                <p class="text-gray-500 mt-1">Gérez les commandes contenant vos produits</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="flex justify-center items-center py-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-indigo-500 border-solid border-gray-200"></div>
+        <span class="ml-4 text-gray-500 text-lg">Chargement des commandes...</span>
+    </div>
+
+    <!-- Aucune commande -->
+    <div *ngIf="!loading && commandes.length === 0"
+        class="text-center py-20 bg-white rounded-2xl shadow-lg border border-gray-100">
+        <mat-icon class="text-gray-300 text-6xl mb-4">inbox</mat-icon>
+        <p class="text-xl text-gray-500">Aucune commande à traiter</p>
+        <p class="text-gray-400 mt-2">Les commandes contenant vos produits apparaîtront ici</p>
+    </div>
+
+    <!-- Résumé -->
+    <div *ngIf="!loading && commandes.length > 0"
+        class="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-2xl p-6 mb-6 shadow-lg">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+            <div>
+                <p class="text-indigo-100 text-sm">Commandes totales</p>
+                <p class="text-3xl font-bold">{{ commandes.length }}</p>
+            </div>
+            <div class="flex gap-6">
+                <div class="text-center">
+                    <p class="text-2xl font-bold">{{ countByConfirmation('en attente') }}</p>
+                    <p class="text-indigo-100 text-xs">En attente</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-2xl font-bold">{{ countByConfirmation('pret') }}</p>
+                    <p class="text-indigo-100 text-xs">Confirmées</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-2xl font-bold">{{ countByCommandeStatut('expedie') }}</p>
+                    <p class="text-indigo-100 text-xs">Expédiées</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des commandes -->
+    <div *ngIf="!loading && commandes.length > 0" class="space-y-4">
+        <div *ngFor="let commande of commandes"
+            class="bg-white rounded-2xl shadow-md border overflow-hidden"
+            [ngClass]="{
+                'border-yellow-200': commande.confirmation_statut === 'en attente' && commande.statut === 'en cours de preparation',
+                'border-green-200': commande.confirmation_statut === 'pret',
+                'border-blue-200': commande.statut === 'expedie',
+                'border-gray-100': commande.statut === 'deja livre'
+            }">
+
+            <!-- Header de la commande -->
+            <div (click)="toggleCommande(commande._id)"
+                class="flex items-center justify-between p-5 cursor-pointer hover:bg-gray-50 transition-colors">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center"
+     [ngClass]="getHeaderBgClass(commande)">
+                        <mat-icon [ngClass]="{
+                            'text-yellow-600': commande.confirmation_statut === 'en attente',
+                            'text-green-600': commande.confirmation_statut === 'pret',
+                            'text-blue-600': commande.statut === 'expedie'
+                        }">
+                            {{ commande.confirmation_statut === 'en attente' ? 'pending_actions' :
+                               commande.statut === 'expedie' ? 'local_shipping' :
+                               commande.statut === 'deja livre' ? 'check_circle' : 'task_alt' }}
+                        </mat-icon>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-800">
+                            {{ commande.id_panier?.nom || 'Commande' }}
+                        </h2>
+                        <div class="flex items-center gap-3 text-sm text-gray-500">
+                            <span>{{ commande.date_commande | date:'dd/MM/yyyy à HH:mm' }}</span>
+                            <span>•</span>
+                            <span>Client: {{ commande.id_client?.nom_complet || 'Inconnu' }}</span>
+                            <span>•</span>
+                            <span>{{ commande.nombre_produits_boutique }} produit(s)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <!-- Badge confirmation boutique -->
+                    <span class="text-xs px-3 py-1 rounded-full font-semibold"
+                        [ngClass]="getConfirmationClass(commande.confirmation_statut)">
+                        {{ getConfirmationLabel(commande.confirmation_statut) }}
+                    </span>
+                    <!-- Badge statut commande -->
+                    <span class="text-xs px-3 py-1 rounded-full font-semibold"
+                        [ngClass]="getStatutCommandeClass(commande.statut)">
+                        {{ getStatutCommandeLabel(commande.statut) }}
+                    </span>
+                    <div class="text-right">
+                        <p class="text-xs text-gray-500">Sous-total</p>
+                        <p class="text-lg font-bold text-gray-800">{{ commande.sous_total_boutique | number:'1.0-0' }} Ar</p>
+                    </div>
+                    <mat-icon class="text-gray-400 transition-transform duration-300"
+                        [class.rotate-180]="isCommandeOuverte(commande._id)">
+                        expand_more
+                    </mat-icon>
+                </div>
+            </div>
+
+            <!-- Contenu détaillé -->
+            <div class="transition-all duration-300 overflow-hidden"
+                [style.maxHeight]="isCommandeOuverte(commande._id) ? '3000px' : '0'"
+                [style.opacity]="isCommandeOuverte(commande._id) ? '1' : '0'">
+
+                <div class="border-t border-gray-100 p-5">
+
+                    <!-- Info commande -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+                        <div class="bg-gray-50 rounded-xl p-3">
+                            <p class="text-xs text-gray-500 mb-1">Client</p>
+                            <p class="font-semibold text-gray-800">{{ commande.id_client?.nom_complet || 'Inconnu' }}</p>
+                            <p class="text-xs text-gray-400">{{ commande.id_client?.telephone || '' }}</p>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-3">
+                            <p class="text-xs text-gray-500 mb-1">Adresse de livraison</p>
+                            <div class="flex items-start gap-1">
+                                <mat-icon class="text-red-500 text-sm mt-0.5">location_on</mat-icon>
+                                <span class="font-semibold text-gray-800 text-sm">{{ commande.adresse_livraison || 'Non renseignée' }}</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-3">
+                            <p class="text-xs text-gray-500 mb-1">Progression boutiques</p>
+                            <div class="flex items-center gap-2">
+                                <div class="flex-1 bg-gray-200 rounded-full h-2.5">
+                                    <div class="h-2.5 rounded-full transition-all duration-500"
+                                        [ngClass]="{
+                                            'bg-green-500': commande.nb_boutiques_confirmes === commande.nb_boutiques_total,
+                                            'bg-yellow-500': commande.nb_boutiques_confirmes > 0 && commande.nb_boutiques_confirmes < commande.nb_boutiques_total,
+                                            'bg-gray-400': commande.nb_boutiques_confirmes === 0
+                                        }"
+                                        [ngStyle]="{'width': (commande.nb_boutiques_confirmes / commande.nb_boutiques_total * 100) + '%'}">
+                                    </div>
+                                </div>
+                                <span class="text-sm font-bold text-gray-700">
+                                    {{ commande.nb_boutiques_confirmes }}/{{ commande.nb_boutiques_total }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Produits de cette boutique -->
+                    <h3 class="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wider">Vos produits dans cette commande</h3>
+                    <div class="space-y-2 mb-4">
+                        <div *ngFor="let pp of commande.produits_boutique"
+                            class="flex items-center gap-4 p-3 rounded-xl transition"
+                            [ngClass]="pp.stock_suffisant ? 'bg-gray-50 hover:bg-gray-100' : 'bg-red-50 hover:bg-red-100 border border-red-200'">
+
+                            <!-- Photo -->
+                            <div class="w-14 h-14 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0 flex items-center justify-center">
+                                <img *ngIf="pp.id_produit?.photo" [src]="pp.id_produit.photo"
+                                    class="w-full h-full object-cover" />
+                                <mat-icon *ngIf="!pp.id_produit?.photo" class="text-gray-400">inventory_2</mat-icon>
+                            </div>
+
+                            <!-- Info produit -->
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-semibold text-gray-800 truncate text-sm">{{ pp.id_produit?.nom || 'Produit' }}</h4>
+                                <p class="text-xs text-gray-500">{{ pp.id_produit?.type || '' }}</p>
+                            </div>
+
+                            <!-- Qté commandée -->
+                            <div class="text-center">
+                                <p class="text-xs text-gray-500">Commandé</p>
+                                <p class="font-bold text-gray-800">{{ pp.quantite }}</p>
+                            </div>
+
+                            <!-- Stock -->
+                            <div class="text-center min-w-[80px]">
+                                <p class="text-xs text-gray-500">Stock</p>
+                                <p class="font-bold" [ngClass]="pp.stock_suffisant ? 'text-green-600' : 'text-red-600'">
+                                    {{ pp.stock_disponible }}
+                                </p>
+                            </div>
+
+                            <!-- Statut stock -->
+                            <div class="min-w-[100px]">
+                                <span *ngIf="pp.stock_suffisant"
+                                    class="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-green-100 text-green-700 font-semibold">
+                                    <mat-icon class="text-xs">check_circle</mat-icon>
+                                    Suffisant
+                                </span>
+                                <span *ngIf="!pp.stock_suffisant"
+                                    class="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-red-100 text-red-700 font-semibold">
+                                    <mat-icon class="text-xs">error</mat-icon>
+                                    Insuffisant
+                                </span>
+                            </div>
+
+                            <!-- Sous-total -->
+                            <div class="text-right min-w-[90px]">
+                                <p class="text-xs text-gray-500">Sous-total</p>
+                                <p class="font-bold text-blue-600">{{ pp.prix_unitaire * pp.quantite | number:'1.0-0' }} Ar</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer avec actions -->
+                    <div class="pt-4 border-t border-gray-200 flex items-center justify-between">
+                        <div>
+                            <!-- Bouton confirmer -->
+                            <button *ngIf="commande.confirmation_statut === 'en attente' && commande.statut === 'en cours de preparation'"
+                                (click)="confirmerPreparation(commande._id); $event.stopPropagation()"
+                                [disabled]="confirmingId === commande._id || !tousStocksSuffisants(commande)"
+                                class="flex items-center gap-2 px-5 py-2.5 font-semibold rounded-xl transition shadow-md"
+                                [ngClass]="{
+                                    'bg-green-600 hover:bg-green-700 text-white': tousStocksSuffisants(commande) && confirmingId !== commande._id,
+                                    'bg-gray-300 text-gray-500 cursor-not-allowed': !tousStocksSuffisants(commande) || confirmingId === commande._id
+                                }">
+                                <mat-icon *ngIf="confirmingId !== commande._id">check</mat-icon>
+                                <div *ngIf="confirmingId === commande._id"
+                                    class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                {{ confirmingId === commande._id ? 'Confirmation...' :
+                                   !tousStocksSuffisants(commande) ? 'Stock insuffisant' : 'Confirmer la préparation' }}
+                            </button>
+
+                            <!-- Déjà confirmé -->
+                            <div *ngIf="commande.confirmation_statut === 'pret'"
+                                class="flex items-center gap-2 text-green-700 font-semibold">
+                                <mat-icon>verified</mat-icon>
+                                <span>Préparation confirmée</span>
+                                <span *ngIf="commande.date_confirmation" class="text-xs text-gray-400 ml-2">
+                                    le {{ commande.date_confirmation | date:'dd/MM/yyyy à HH:mm' }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm text-gray-500">Sous-total de vos produits</p>
+                            <p class="text-2xl font-bold text-indigo-600">{{ commande.sous_total_boutique | number:'1.0-0' }} Ar</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

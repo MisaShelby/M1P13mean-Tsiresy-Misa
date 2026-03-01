@@ -1,0 +1,307 @@
+<div class="max-w-7xl mx-auto px-4 py-6">
+
+  <!-- Header -->
+  <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+        <mat-icon class="text-indigo-600 text-4xl">store</mat-icon>
+        Gestion des Boutiques
+      </h1>
+      <p class="text-gray-500 mt-1">Vue d'ensemble de toutes les boutiques de la plateforme</p>
+    </div>
+    <a routerLink="/stat-admin"
+      class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition shadow-md text-sm">
+      <mat-icon class="text-sm">bar_chart</mat-icon>
+      Voir les Statistiques
+    </a>
+  </div>
+
+  <!-- KPIs Summary -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-indigo-500">
+      <div class="text-sm text-gray-500">Boutiques affichées</div>
+      <div class="text-2xl font-bold text-gray-800">{{ filteredBoutiques.length }}</div>
+    </div>
+    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-green-500">
+      <div class="text-sm text-gray-500">Total Produits</div>
+      <div class="text-2xl font-bold text-gray-800">{{ totalProduits }}</div>
+    </div>
+    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-blue-500">
+      <div class="text-sm text-gray-500">Total Commandes</div>
+      <div class="text-2xl font-bold text-gray-800">{{ totalCommandes }}</div>
+    </div>
+    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-amber-500">
+      <div class="text-sm text-gray-500">Chiffre d'Affaires</div>
+      <div class="text-2xl font-bold text-gray-800">{{ formatMontant(totalCA) }}</div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white rounded-2xl shadow-lg mb-6 border border-gray-100 p-5">
+    <div class="flex flex-col md:flex-row gap-4">
+      <!-- Search -->
+      <div class="relative flex-1">
+        <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">search</mat-icon>
+        <input type="text" [(ngModel)]="searchText" (ngModelChange)="appliquerFiltres()"
+          placeholder="Rechercher par nom, gérant, email..."
+          class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" />
+      </div>
+      <!-- Status Filter -->
+      <select [(ngModel)]="filterStatut" (ngModelChange)="appliquerFiltres()"
+        class="px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-white min-w-[180px]">
+        <option value="all">Tous les statuts</option>
+        <option value="validee">Active</option>
+        <option value="en_attente">En attente</option>
+        <option value="refusee">Refusée</option>
+        <option value="desactivee">Désactivée</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="flex justify-center items-center py-20">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-indigo-500 border-solid border-gray-200"></div>
+    <span class="ml-4 text-gray-500 text-lg">Chargement des boutiques...</span>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && filteredBoutiques.length === 0"
+    class="text-center py-20 bg-white rounded-2xl shadow-lg border border-gray-100">
+    <mat-icon class="text-gray-300 text-6xl mb-4">store</mat-icon>
+    <p class="text-xl text-gray-500">Aucune boutique trouvée</p>
+    <p class="text-gray-400 mt-2">Essayez de modifier vos filtres</p>
+  </div>
+
+  <!-- Table View -->
+  <div *ngIf="!loading && filteredBoutiques.length > 0" class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-gray-50 text-gray-600 uppercase text-xs">
+            <th class="px-4 py-3 text-left">Boutique</th>
+            <th class="px-4 py-3 text-left cursor-pointer hover:text-indigo-600" (click)="toggleSort('nom_boutique')">
+              Gérant
+              <mat-icon *ngIf="sortField === 'nom_boutique'" class="text-xs align-middle">
+                {{ sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+              </mat-icon>
+            </th>
+            <th class="px-4 py-3 text-center">Statut</th>
+            <th class="px-4 py-3 text-center cursor-pointer hover:text-indigo-600" (click)="toggleSort('nombre_produits')">
+              Produits
+              <mat-icon *ngIf="sortField === 'nombre_produits'" class="text-xs align-middle">
+                {{ sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+              </mat-icon>
+            </th>
+            <th class="px-4 py-3 text-center cursor-pointer hover:text-indigo-600" (click)="toggleSort('nombre_commandes')">
+              Commandes
+              <mat-icon *ngIf="sortField === 'nombre_commandes'" class="text-xs align-middle">
+                {{ sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+              </mat-icon>
+            </th>
+            <th class="px-4 py-3 text-right cursor-pointer hover:text-indigo-600" (click)="toggleSort('chiffre_affaires')">
+              CA
+              <mat-icon *ngIf="sortField === 'chiffre_affaires'" class="text-xs align-middle">
+                {{ sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+              </mat-icon>
+            </th>
+            <th class="px-4 py-3 text-right cursor-pointer hover:text-indigo-600" (click)="toggleSort('portefeuille')">
+              Portefeuille
+              <mat-icon *ngIf="sortField === 'portefeuille'" class="text-xs align-middle">
+                {{ sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+              </mat-icon>
+            </th>
+            <th class="px-4 py-3 text-center">Abonnement</th>
+            <th class="px-4 py-3 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let boutique of filteredBoutiques"
+            class="border-t border-gray-100 hover:bg-indigo-50/30 transition">
+            <!-- Boutique Info -->
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-indigo-200 to-indigo-400 flex items-center justify-center flex-shrink-0">
+                  <img *ngIf="boutique.photo" [src]="boutique.photo" class="w-full h-full object-cover" />
+                  <mat-icon *ngIf="!boutique.photo" class="text-white text-lg">store</mat-icon>
+                </div>
+                <div>
+                  <div class="font-semibold text-gray-800">{{ boutique.nom_boutique }}</div>
+                  <div class="text-xs text-gray-400">{{ boutique.email }}</div>
+                </div>
+              </div>
+            </td>
+            <!-- Gérant -->
+            <td class="px-4 py-3">
+              <div class="text-gray-700">{{ boutique.nom_gerant }}</div>
+              <div class="text-xs text-gray-400">{{ boutique.telephone_gerant }}</div>
+            </td>
+            <!-- Statut -->
+            <td class="px-4 py-3 text-center">
+              <span class="inline-block px-2.5 py-1 rounded-full text-xs font-semibold" [ngClass]="getStatutClass(boutique)">
+                {{ getStatutLabel(boutique) }}
+              </span>
+            </td>
+            <!-- Produits -->
+            <td class="px-4 py-3 text-center">
+              <div class="font-bold text-gray-800">{{ boutique.nombre_produits }}</div>
+              <div class="text-xs text-gray-400">{{ boutique.nombre_produits_actifs }} actif(s)</div>
+            </td>
+            <!-- Commandes -->
+            <td class="px-4 py-3 text-center">
+              <span class="font-bold text-gray-800">{{ boutique.nombre_commandes }}</span>
+            </td>
+            <!-- CA -->
+            <td class="px-4 py-3 text-right">
+              <span class="font-bold text-gray-800">{{ formatMontant(boutique.chiffre_affaires) }}</span>
+            </td>
+            <!-- Portefeuille -->
+            <td class="px-4 py-3 text-right">
+              <span class="font-bold" [ngClass]="boutique.portefeuille > 0 ? 'text-green-600' : 'text-gray-400'">
+                {{ formatMontant(boutique.portefeuille) }}
+              </span>
+            </td>
+            <!-- Abonnement -->
+            <td class="px-4 py-3 text-center">
+              <span *ngIf="boutique.abonnement_info" class="inline-block bg-indigo-50 text-indigo-700 text-xs font-semibold px-2.5 py-1 rounded-lg">
+                {{ boutique.abonnement_info.plan }}
+              </span>
+              <span *ngIf="!boutique.abonnement_info" class="text-xs text-gray-400">Aucun</span>
+            </td>
+            <!-- Actions -->
+            <td class="px-4 py-3 text-center">
+              <button (click)="ouvrirDetail(boutique)"
+                class="p-2 text-indigo-600 hover:bg-indigo-100 rounded-lg transition" title="Voir détails">
+                <mat-icon class="text-lg">visibility</mat-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div *ngIf="selectedBoutique"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+    (click)="fermerDetail()">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+      (click)="$event.stopPropagation()">
+
+      <!-- Modal Header -->
+      <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white p-6 rounded-t-2xl">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-full overflow-hidden bg-white/20 flex items-center justify-center">
+              <img *ngIf="selectedBoutique.photo" [src]="selectedBoutique.photo" class="w-full h-full object-cover" />
+              <mat-icon *ngIf="!selectedBoutique.photo" class="text-white text-3xl">store</mat-icon>
+            </div>
+            <div>
+              <h2 class="text-xl font-bold">{{ selectedBoutique.nom_boutique }}</h2>
+              <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-semibold"
+                [ngClass]="getStatutClass(selectedBoutique)">
+                {{ getStatutLabel(selectedBoutique) }}
+              </span>
+            </div>
+          </div>
+          <button (click)="fermerDetail()" class="p-2 hover:bg-white/20 rounded-full transition">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 space-y-6">
+
+        <!-- Info Gérant -->
+        <div>
+          <h3 class="text-sm font-semibold text-gray-500 uppercase mb-3">Informations du Gérant</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="flex items-center gap-2">
+              <mat-icon class="text-gray-400 text-lg">person</mat-icon>
+              <div>
+                <div class="text-xs text-gray-400">Nom</div>
+                <div class="font-medium text-gray-800">{{ selectedBoutique.nom_gerant }}</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <mat-icon class="text-gray-400 text-lg">email</mat-icon>
+              <div>
+                <div class="text-xs text-gray-400">Email</div>
+                <div class="font-medium text-gray-800">{{ selectedBoutique.email }}</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <mat-icon class="text-gray-400 text-lg">phone</mat-icon>
+              <div>
+                <div class="text-xs text-gray-400">Téléphone</div>
+                <div class="font-medium text-gray-800">{{ selectedBoutique.telephone_gerant }}</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <mat-icon class="text-gray-400 text-lg">calendar_today</mat-icon>
+              <div>
+                <div class="text-xs text-gray-400">Inscription</div>
+                <div class="font-medium text-gray-800">{{ formatDate(selectedBoutique.createdAt) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Indicateurs -->
+        <div>
+          <h3 class="text-sm font-semibold text-gray-500 uppercase mb-3">Indicateurs de Performance</h3>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="bg-indigo-50 rounded-xl p-3 text-center">
+              <div class="text-2xl font-bold text-indigo-700">{{ selectedBoutique.nombre_produits }}</div>
+              <div class="text-xs text-indigo-500 mt-1">Produits</div>
+            </div>
+            <div class="bg-blue-50 rounded-xl p-3 text-center">
+              <div class="text-2xl font-bold text-blue-700">{{ selectedBoutique.nombre_produits_actifs }}</div>
+              <div class="text-xs text-blue-500 mt-1">Produits actifs</div>
+            </div>
+            <div class="bg-green-50 rounded-xl p-3 text-center">
+              <div class="text-2xl font-bold text-green-700">{{ selectedBoutique.nombre_commandes }}</div>
+              <div class="text-xs text-green-500 mt-1">Commandes</div>
+            </div>
+            <div class="bg-amber-50 rounded-xl p-3 text-center">
+              <div class="text-2xl font-bold text-amber-700">{{ formatMontant(selectedBoutique.chiffre_affaires) }}</div>
+              <div class="text-xs text-amber-500 mt-1">Chiffre d'affaires</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Commission & Abonnement -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-gray-50 rounded-xl p-4">
+            <h4 class="text-sm font-semibold text-gray-500 mb-2">Commission</h4>
+            <div class="text-lg font-bold text-gray-800">{{ selectedBoutique.commission_info?.nom }}</div>
+            <div class="text-sm text-gray-500">Tarif : {{ formatMontant(selectedBoutique.commission_info?.tarif) }}</div>
+            <div *ngIf="selectedBoutique.commission_info?.description" class="text-xs text-gray-400 mt-1">{{ selectedBoutique.commission_info.description }}</div>
+          </div>
+          <div class="bg-gray-50 rounded-xl p-4">
+            <h4 class="text-sm font-semibold text-gray-500 mb-2">Abonnement</h4>
+            <div *ngIf="selectedBoutique.abonnement_info">
+              <div class="text-lg font-bold text-gray-800">{{ selectedBoutique.abonnement_info.plan }}</div>
+              <div class="text-sm text-gray-500">
+                Statut : <span class="font-semibold" [ngClass]="selectedBoutique.abonnement_info.statut === 'ACTIVE' ? 'text-green-600' : 'text-red-500'">{{ selectedBoutique.abonnement_info.statut }}</span>
+              </div>
+              <div class="text-xs text-gray-400 mt-1">
+                Depuis {{ formatDate(selectedBoutique.abonnement_info.date_debut) }} · Prochain paiement {{ formatDate(selectedBoutique.abonnement_info.prochain_paiement) }}
+              </div>
+            </div>
+            <div *ngIf="!selectedBoutique.abonnement_info" class="text-gray-400">Aucun abonnement actif</div>
+          </div>
+        </div>
+
+        <!-- Portefeuille -->
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <div class="text-sm font-semibold text-gray-500">Solde Portefeuille</div>
+            <div class="text-2xl font-bold text-green-700">{{ formatMontant(selectedBoutique.portefeuille) }}</div>
+          </div>
+          <mat-icon class="text-green-300 text-5xl">account_balance_wallet</mat-icon>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

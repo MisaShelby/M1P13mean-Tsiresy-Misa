@@ -41,7 +41,7 @@ export class LoginBoutique {
                         if (response.requires_setup) {
                             this.router.navigate(['/boutique-setup']);
                         } else {
-                            this.router.navigate(['/test']);
+                            this.router.navigate(['/liste-produit']);
                         }
                     }, 1500);
                 } else {

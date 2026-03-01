@@ -1,0 +1,180 @@
+<div class="max-w-5xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+                    <mat-icon class="text-orange-600 text-4xl">shopping_cart</mat-icon>
+                    Mes Paniers
+                </h1>
+                <p class="text-gray-500 mt-1">Gérez vos paniers et vos produits sélectionnés</p>
+            </div>
+            <div class="flex gap-3">
+                <button (click)="allerAuxCommandes()"
+                    class="flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition shadow-md">
+                    <mat-icon>local_shipping</mat-icon>
+                    Mes Commandes
+                </button>
+                <button (click)="retourProduits()"
+                    class="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition shadow-md">
+                    <mat-icon>arrow_back</mat-icon>
+                    Retour aux produits
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="flex justify-center items-center py-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-orange-500 border-solid border-gray-200"></div>
+        <span class="ml-4 text-gray-500 text-lg">Chargement des paniers...</span>
+    </div>
+
+    <!-- Aucun panier -->
+    <div *ngIf="!loading && paniers.length === 0"
+        class="text-center py-20 bg-white rounded-2xl shadow-lg border border-gray-100">
+        <mat-icon class="text-gray-300 text-6xl mb-4">remove_shopping_cart</mat-icon>
+        <p class="text-xl text-gray-500">Vous n'avez aucun panier</p>
+        <p class="text-gray-400 mt-2">Ajoutez des produits depuis la liste des produits</p>
+        <button (click)="retourProduits()"
+            class="mt-4 inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition">
+            <mat-icon>storefront</mat-icon>
+            Voir les produits
+        </button>
+    </div>
+
+    <!-- Résumé global -->
+    <div *ngIf="!loading && paniers.length > 0"
+        class="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-2xl p-6 mb-6 shadow-lg">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+            <div>
+                <p class="text-orange-100 text-sm">Total de tous les paniers</p>
+                <p class="text-3xl font-bold">{{ getTotalGeneral() | number:'1.0-0' }} Ar</p>
+            </div>
+            <div class="flex gap-6">
+                <div class="text-center">
+                    <p class="text-2xl font-bold">{{ paniers.length }}</p>
+                    <p class="text-orange-100 text-xs">Panier(s)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des paniers -->
+    <div *ngIf="!loading && paniers.length > 0" class="space-y-4">
+        <div *ngFor="let panier of paniers"
+            class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+
+            <!-- Header du panier -->
+            <div (click)="togglePanier(panier._id)"
+                class="flex items-center justify-between p-5 cursor-pointer hover:bg-gray-50 transition-colors">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-orange-100">
+                        <mat-icon class="text-orange-600">shopping_cart</mat-icon>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-800">{{ panier.nom }}</h2>
+                        <div class="flex items-center gap-3 text-sm text-gray-500">
+                            <span>{{ panier.nombre_produits }} produit(s)</span>
+                            <span>•</span>
+                            <span>Créé le {{ panier.createdAt | date:'dd/MM/yyyy' }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <p class="text-xs text-gray-500">Total</p>
+                        <p class="text-xl font-bold text-gray-800">{{ panier.total | number:'1.0-0' }} Ar</p>
+                    </div>
+                    <mat-icon class="text-gray-400 transition-transform duration-300"
+                        [class.rotate-180]="isPanierOuvert(panier._id)">
+                        expand_more
+                    </mat-icon>
+                </div>
+            </div>
+
+            <!-- Contenu du panier (accordion) -->
+            <div class="transition-all duration-300 overflow-hidden"
+                [style.maxHeight]="isPanierOuvert(panier._id) ? '2000px' : '0'"
+                [style.opacity]="isPanierOuvert(panier._id) ? '1' : '0'">
+
+                <div class="border-t border-gray-100 p-5">
+                    <!-- Aucun produit -->
+                    <div *ngIf="panier.produits.length === 0" class="text-center py-8 text-gray-500">
+                        <mat-icon class="text-4xl text-gray-300 mb-2">inventory_2</mat-icon>
+                        <p>Ce panier est vide</p>
+                    </div>
+
+                    <!-- Liste des produits -->
+                    <div *ngIf="panier.produits.length > 0" class="space-y-3">
+                        <div *ngFor="let pp of panier.produits"
+                            class="flex items-center gap-4 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition">
+                            <!-- Photo produit -->
+                            <div class="w-16 h-16 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0 flex items-center justify-center">
+                                <img *ngIf="pp.id_produit?.photo" [src]="pp.id_produit.photo"
+                                    class="w-full h-full object-cover" />
+                                <mat-icon *ngIf="!pp.id_produit?.photo" class="text-gray-400">inventory_2</mat-icon>
+                            </div>
+
+                            <!-- Info produit -->
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-semibold text-gray-800 truncate">{{ pp.id_produit?.nom || 'Produit inconnu' }}</h4>
+                                <p class="text-xs text-gray-500">{{ pp.id_boutique?.nom_boutique || 'Boutique' }}</p>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span *ngIf="pp.promotions && pp.promotions.length > 0"
+                                        class="text-xs text-red-500 line-through">{{ pp.prix_unitaire | number:'1.0-0' }} Ar</span>
+                                    <span class="text-sm font-semibold"
+                                        [class]="pp.promotions && pp.promotions.length > 0 ? 'text-red-600' : 'text-gray-800'">
+                                        {{ pp.prix_effectif | number:'1.0-0' }} Ar
+                                    </span>
+                                    <span *ngIf="pp.promotions && pp.promotions.length > 0"
+                                        class="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full font-bold">
+                                        -{{ pp.promotions[0].pourcentage }}%
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Quantité -->
+                            <div class="text-center">
+                                <p class="text-xs text-gray-500">Qté</p>
+                                <p class="text-lg font-bold text-gray-800">{{ pp.quantite }}</p>
+                            </div>
+
+                            <!-- Sous-total -->
+                            <div class="text-right min-w-[100px]">
+                                <p class="text-xs text-gray-500">Sous-total</p>
+                                <p class="text-lg font-bold text-blue-600">{{ pp.sous_total | number:'1.0-0' }} Ar</p>
+                            </div>
+
+                            <!-- Supprimer -->
+                            <button (click)="supprimerProduit(pp._id); $event.stopPropagation()"
+                                class="w-9 h-9 rounded-lg bg-red-100 hover:bg-red-200 flex items-center justify-center transition flex-shrink-0">
+                                <mat-icon class="text-red-600 text-lg">delete</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Footer avec total et actions -->
+                    <div class="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between">
+                        <div class="flex gap-2">
+                            <button (click)="ouvrirPaiement(panier)"
+                                class="flex items-center gap-1 px-4 py-2 text-sm bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition shadow">
+                                <mat-icon class="text-sm">payment</mat-icon>
+                                Procéder au paiement
+                            </button>
+                            <button (click)="supprimerPanier(panier._id)"
+                                class="flex items-center gap-1 px-3 py-1.5 text-sm bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition">
+                                <mat-icon class="text-sm">delete_forever</mat-icon>
+                                Supprimer
+                            </button>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm text-gray-500">Total du panier</p>
+                            <p class="text-2xl font-bold text-orange-600">{{ panier.total | number:'1.0-0' }} Ar</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

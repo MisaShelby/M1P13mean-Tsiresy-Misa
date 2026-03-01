@@ -1,0 +1,116 @@
+<div class="p-6 max-w-lg">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+            <mat-icon class="text-blue-600">add_shopping_cart</mat-icon>
+            Ajouter au panier
+        </h2>
+        <button (click)="fermer()" class="text-gray-400 hover:text-gray-600 transition">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <!-- Produit sélectionné -->
+    <div class="bg-gray-50 rounded-xl p-4 mb-6 flex items-center gap-4">
+        <div class="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center">
+            <img *ngIf="data.produit.photo" [src]="data.produit.photo" class="w-full h-full object-cover" />
+            <mat-icon *ngIf="!data.produit.photo" class="text-gray-400">inventory_2</mat-icon>
+        </div>
+        <div class="flex-1 min-w-0">
+            <h3 class="font-semibold text-gray-800 truncate">{{ data.produit.nom }}</h3>
+            <p class="text-sm text-gray-500">{{ data.produit.boutique_info?.nom_boutique }}</p>
+            <p class="text-blue-600 font-bold">{{ getPrixEffectif(data.produit) | number:'1.0-0' }} Ar</p>
+        </div>
+    </div>
+
+    <!-- Quantité -->
+    <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-600 mb-2">Quantité</label>
+        <div class="flex items-center gap-3">
+            <button (click)="quantite > 1 ? quantite = quantite - 1 : null"
+                class="w-10 h-10 rounded-lg bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition">
+                <mat-icon>remove</mat-icon>
+            </button>
+            <input type="number" [(ngModel)]="quantite" min="1"
+                class="w-20 text-center py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+            <button (click)="quantite = quantite + 1"
+                class="w-10 h-10 rounded-lg bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition">
+                <mat-icon>add</mat-icon>
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="flex justify-center py-8">
+        <div class="animate-spin rounded-full h-8 w-8 border-t-4 border-blue-500 border-solid border-gray-200"></div>
+    </div>
+
+    <!-- Tabs -->
+    <div *ngIf="!loading" class="mb-4">
+        <div class="flex border-b border-gray-200">
+            <button (click)="mode = 'select'"
+                [class]="mode === 'select' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 hover:text-gray-700'"
+                class="flex-1 py-2 px-4 text-sm font-medium transition"
+                [disabled]="paniersActifs.length === 0">
+                <mat-icon class="text-sm align-middle mr-1">shopping_cart</mat-icon>
+                Panier existant ({{ paniersActifs.length }})
+            </button>
+            <button (click)="mode = 'create'"
+                [class]="mode === 'create' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 hover:text-gray-700'"
+                class="flex-1 py-2 px-4 text-sm font-medium transition">
+                <mat-icon class="text-sm align-middle mr-1">add_circle</mat-icon>
+                Nouveau panier
+            </button>
+        </div>
+    </div>
+
+    <!-- Mode: Sélectionner panier existant -->
+    <div *ngIf="!loading && mode === 'select'">
+        <div *ngIf="paniersActifs.length === 0" class="text-center py-6 text-gray-500">
+            <mat-icon class="text-4xl text-gray-300 mb-2">remove_shopping_cart</mat-icon>
+            <p>Aucun panier actif. Créez-en un nouveau !</p>
+        </div>
+
+        <div *ngIf="paniersActifs.length > 0" class="space-y-2 max-h-48 overflow-y-auto mb-4">
+            <label *ngFor="let panier of paniersActifs"
+                class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all"
+                [class]="panierSelectionne === panier._id
+                    ? 'border-blue-500 bg-blue-50 shadow-sm'
+                    : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'">
+                <input type="radio" name="panier" [value]="panier._id" [(ngModel)]="panierSelectionne"
+                    class="text-blue-600 focus:ring-blue-500" />
+                <div class="flex-1">
+                    <span class="font-medium text-gray-800">{{ panier.nom }}</span>
+                    <p class="text-xs text-gray-500">Créé le {{ panier.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+                </div>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">actif</span>
+            </label>
+        </div>
+
+        <button *ngIf="paniersActifs.length > 0" (click)="ajouterAuPanierExistant()"
+            [disabled]="!panierSelectionne || submitting"
+            class="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition flex items-center justify-center gap-2">
+            <mat-icon *ngIf="!submitting">add_shopping_cart</mat-icon>
+            <div *ngIf="submitting" class="animate-spin rounded-full h-5 w-5 border-t-2 border-white"></div>
+            {{ submitting ? 'Ajout en cours...' : 'Ajouter au panier' }}
+        </button>
+    </div>
+
+    <!-- Mode: Créer nouveau panier -->
+    <div *ngIf="!loading && mode === 'create'">
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-600 mb-2">Nom du panier</label>
+            <input type="text" [(ngModel)]="nouveauNomPanier"
+                placeholder="Ex: Mes courses, Cadeau anniversaire..."
+                class="w-full py-2.5 px-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+        </div>
+
+        <button (click)="creerEtAjouter()"
+            [disabled]="!nouveauNomPanier.trim() || submitting"
+            class="w-full py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition flex items-center justify-center gap-2">
+            <mat-icon *ngIf="!submitting">add_circle</mat-icon>
+            <div *ngIf="submitting" class="animate-spin rounded-full h-5 w-5 border-t-2 border-white"></div>
+            {{ submitting ? 'Création en cours...' : 'Créer le panier et ajouter' }}
+        </button>
+    </div>
+</div>

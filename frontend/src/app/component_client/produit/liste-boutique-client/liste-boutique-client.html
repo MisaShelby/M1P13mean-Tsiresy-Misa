@@ -1,0 +1,84 @@
+<div class="max-w-7xl mx-auto">
+    <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold text-gray-800 flex items-center justify-center gap-3">
+            <mat-icon class="text-blue-600 text-4xl">storefront</mat-icon>
+            Nos Boutiques Partenaires
+        </h1>
+        <p class="text-gray-500 mt-2">Découvrez toutes nos boutiques et leurs produits</p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg mb-8 border border-gray-100 p-6">
+        <div class="relative max-w-md mx-auto">
+            <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">search</mat-icon>
+            <input type="text" [(ngModel)]="searchText" (ngModelChange)="filtrerBoutiques()"
+                placeholder="Rechercher une boutique..."
+                class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+        </div>
+    </div>
+
+    <div *ngIf="loading" class="flex justify-center items-center py-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid border-gray-200"></div>
+        <span class="ml-4 text-gray-500 text-lg">Chargement des boutiques...</span>
+    </div>
+
+    <div *ngIf="!loading && filteredBoutiques.length === 0"
+        class="text-center py-20 bg-white rounded-2xl shadow-lg border border-gray-100">
+        <mat-icon class="text-gray-300 text-6xl mb-4">store</mat-icon>
+        <p class="text-xl text-gray-500">Aucune boutique trouvée</p>
+        <p class="text-gray-400 mt-2">Essayez de modifier votre recherche</p>
+    </div>
+
+    <div *ngIf="!loading && filteredBoutiques.length > 0" class="mb-4">
+        <span class="text-gray-500">
+            <strong class="text-gray-800">{{ filteredBoutiques.length }}</strong> boutique(s) disponible(s)
+        </span>
+    </div>
+
+    <div *ngIf="!loading && filteredBoutiques.length > 0"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+
+        <div *ngFor="let boutique of filteredBoutiques"
+            class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 group cursor-pointer">
+
+            <div class="h-40 bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center overflow-hidden relative">
+                <img *ngIf="boutique.photo" [src]="boutique.photo" [alt]="boutique.nom_boutique"
+                    class="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <div *ngIf="!boutique.photo"
+                    class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-200 to-blue-400">
+                    <mat-icon class="text-white text-6xl">store</mat-icon>
+                </div>
+
+                <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-bold text-blue-700 shadow">
+                    {{ boutique.nombre_produits }} produit(s)
+                </div>
+            </div>
+
+            <div class="p-4">
+                <h3 class="font-bold text-gray-800 text-lg mb-1 truncate group-hover:text-blue-600 transition-colors">
+                    {{ boutique.nom_boutique }}
+                </h3>
+                <div class="flex items-center gap-1.5 text-sm text-gray-500 mb-1">
+                    <mat-icon class="text-sm">person</mat-icon>
+                    <span class="truncate">{{ boutique.nom_gerant }}</span>
+                </div>
+                <div class="flex items-center gap-1.5 text-sm text-gray-500 mb-3">
+                    <mat-icon class="text-sm">email</mat-icon>
+                    <span class="truncate">{{ boutique.email }}</span>
+                </div>
+
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="inline-block bg-green-50 text-green-700 text-xs font-semibold px-2.5 py-1 rounded-lg">
+                        {{ boutique.commission_info?.nom || 'Aucune' }}
+                    </span>
+                </div>
+
+                <button (click)="ouvrirDetailBoutique(boutique._id)"
+                    class="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition shadow-md text-sm">
+                    <mat-icon class="text-sm">visibility</mat-icon>
+                    Voir les détails
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+

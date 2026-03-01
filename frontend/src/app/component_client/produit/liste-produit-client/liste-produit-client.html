@@ -1,0 +1,203 @@
+<div class="max-w-7xl mx-auto">
+    <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold text-gray-800 flex items-center justify-center gap-3">
+            <mat-icon class="text-blue-600 text-4xl">storefront</mat-icon>
+            Tous les Produits
+        </h1>
+        <p class="text-gray-500 mt-2">Découvrez les produits de toutes nos boutiques partenaires</p>
+        <button (click)="allerAuxPaniers()"
+            class="mt-4 inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl transition shadow-md">
+            <mat-icon>shopping_cart</mat-icon>
+            Mes Paniers
+        </button>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg mb-8 border border-gray-100 overflow-hidden">
+        <div 
+            (click)="toggleFiltres()" 
+            class="flex items-center justify-between p-6 cursor-pointer hover:bg-gray-50 transition-colors"
+        >
+            <div class="flex items-center gap-2">
+                <mat-icon class="text-blue-600">filter_list</mat-icon>
+                <h2 class="text-lg font-semibold text-gray-700">Filtres & Recherche</h2>
+            </div>
+            <div class="flex items-center gap-3">
+                <mat-icon class="text-gray-500 transition-transform duration-300" [class.rotate-180]="filtresOuverts">
+                    {{ filtresOuverts ? 'expand_less' : 'expand_more' }}
+                </mat-icon>
+            </div>
+        </div>
+
+        <div 
+            class="transition-all duration-300 overflow-hidden"
+            [style.maxHeight]="filtresOuverts ? '800px' : '0'"
+            [style.opacity]="filtresOuverts ? '1' : '0'"
+        >
+            <div class="p-6 pt-0 border-t border-gray-100">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Rechercher</label>
+                        <div class="relative">
+                            <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">search</mat-icon>
+                            <input type="text" [(ngModel)]="searchText"
+                                placeholder="Nom ou description..."
+                                class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Catégorie</label>
+                        <select [(ngModel)]="selectedType"
+                            class="w-full py-2.5 px-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                            <option value="">Toutes les catégories</option>
+                            <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Prix minimum (Ar)</label>
+                        <input type="number" [(ngModel)]="prixMin" placeholder="0"
+                            class="w-full py-2.5 px-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Prix maximum (Ar)</label>
+                        <input type="number" [(ngModel)]="prixMax" placeholder="100000"
+                            class="w-full py-2.5 px-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Trier par</label>
+                        <select [(ngModel)]="sortBy"
+                            class="w-full py-2.5 px-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                            <option value="prix">Prix</option>
+                            <option value="nom">Nom</option>
+                            <option value="date">Date d'ajout</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Ordre</label>
+                        <select [(ngModel)]="sortOrder"
+                            class="w-full py-2.5 px-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                            <option value="desc">Décroissant (plus gros en premier)</option>
+                            <option value="asc">Croissant (plus petit en premier)</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end gap-3">
+                        <button (click)="chargerProduits()"
+                            class="flex-1 flex items-center justify-center gap-2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition shadow-md">
+                            <mat-icon>search</mat-icon>
+                            Rechercher
+                        </button>
+                        <button (click)="resetFiltres()"
+                            class="flex items-center justify-center gap-2 py-2.5 px-4 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-xl transition">
+                            <mat-icon>refresh</mat-icon>
+                            Réinitialiser
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="loading" class="flex justify-center items-center py-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid border-gray-200"></div>
+        <span class="ml-4 text-gray-500 text-lg">Chargement des produits...</span>
+    </div>
+
+    <div *ngIf="!loading && produits.length === 0"
+        class="text-center py-20 bg-white rounded-2xl shadow-lg border border-gray-100">
+        <mat-icon class="text-gray-300 text-6xl mb-4">inventory_2</mat-icon>
+        <p class="text-xl text-gray-500">Aucun produit trouvé</p>
+        <p class="text-gray-400 mt-2">Essayez de modifier vos critères de recherche</p>
+    </div>
+
+    <div *ngIf="!loading && produits.length > 0" class="mb-4 flex items-center justify-between">
+        <span class="text-gray-500">
+            <strong class="text-gray-800">{{ produits.length }}</strong> produit(s) trouvé(s)
+        </span>
+        <span class="text-xs text-gray-400 flex items-center gap-1">
+            <mat-icon class="text-sm">info</mat-icon>
+            Triés par commission boutique (les mieux classés en premier)
+        </span>
+    </div>
+
+    <div *ngIf="!loading && produits.length > 0"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+
+        <div *ngFor="let produit of produits; let i = index"
+            class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 group relative">
+            <div *ngIf="produit.promotions.length > 0" class="absolute top-3 left-3 z-10">
+                <span class="bg-red-500 text-white px-2.5 py-1 rounded-full text-xs font-bold animate-pulse">
+                    -{{ produit.promotions[0].pourcentage }}%
+                </span>
+            </div>
+
+            <div class="h-48 bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center overflow-hidden">
+                <img *ngIf="produit.photo" [src]="produit.photo" [alt]="produit.nom"
+                    class="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <mat-icon *ngIf="!produit.photo" class="text-gray-300 text-6xl">inventory_2</mat-icon>
+            </div>
+
+            <div class="p-4">
+                <div class="flex items-center gap-1.5 mb-2 cursor-pointer hover:opacity-80 transition-opacity"
+                    (click)="ouvrirDetailBoutique(produit.boutique_info._id)">
+                    <div class="w-5 h-5 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
+                        <img *ngIf="produit.boutique_info?.photo" [src]="produit.boutique_info.photo"
+                            class="w-full h-full object-cover" />
+                        <div *ngIf="!produit.boutique_info?.photo"
+                            class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-200 to-blue-300">
+                            <mat-icon class="text-white" style="font-size: 12px; width: 12px; height: 12px;">store</mat-icon>
+                        </div>
+                    </div>
+                    <span class="text-xs text-blue-600 font-medium truncate hover:underline">
+                        {{ produit.boutique_info.nom_boutique }}
+                    </span>
+                </div>
+
+                <h3 class="font-bold text-gray-800 text-lg mb-1 truncate group-hover:text-blue-600 transition-colors">
+                    {{ produit.nom }}
+                </h3>
+
+                <p class="text-gray-500 text-sm mb-3 line-clamp-2">
+                    {{ produit.description || 'Pas de description' }}
+                </p>
+
+                <span class="inline-block bg-indigo-50 text-indigo-600 text-xs font-semibold px-2 py-0.5 rounded-lg mb-3">
+                    {{ produit.type }}
+                </span>
+
+                <div class="flex items-end gap-2 mb-2">
+                    <span *ngIf="getPrixPromo(produit) !== null" class="text-sm text-gray-400 line-through">
+                        {{ produit.prix_unitaire | number:'1.0-0' }} Ar
+                    </span>
+                    <span class="text-xl font-bold"
+                        [class]="getPrixPromo(produit) !== null ? 'text-red-600' : 'text-gray-900'">
+                        {{ (getPrixPromo(produit) ?? produit.prix_unitaire) | number:'1.0-0' }} Ar
+                    </span>
+                </div>
+
+                <div class="flex items-center justify-between text-sm">
+                    <span [class]="produit.stock > 0 ? 'text-green-600 font-medium' : 'text-red-500 font-medium'">
+                        <mat-icon class="text-sm align-middle">{{ produit.stock > 0 ? 'check_circle' : 'cancel' }}</mat-icon>
+                        {{ produit.stock > 0 ? 'En stock (' + produit.stock + ')' : 'Rupture de stock' }}
+                    </span>
+                </div>
+
+                <!-- Bouton Ajouter au panier -->
+                <button *ngIf="produit.stock > 0" (click)="ouvrirAjouterPanier(produit)"
+                    class="w-full mt-3 flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-xl transition shadow-md text-sm">
+                    <mat-icon class="text-lg">add_shopping_cart</mat-icon>
+                    Ajouter au panier
+                </button>
+                <button *ngIf="produit.stock <= 0" disabled
+                    class="w-full mt-3 flex items-center justify-center gap-2 py-2.5 bg-gray-300 text-gray-500 font-semibold rounded-xl cursor-not-allowed text-sm">
+                    <mat-icon class="text-lg">remove_shopping_cart</mat-icon>
+                    Indisponible
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

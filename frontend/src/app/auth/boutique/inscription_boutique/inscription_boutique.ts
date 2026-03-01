@@ -63,6 +63,7 @@ export class InscriptionBoutique {
             },
             error: (error) => {
                 console.error('Erreur:', error);
+                this.isLoading = false;
 
                 const errorMessages: { [key: number]: string } = {
                     400: 'Données invalides. Vérifiez vos informations.',

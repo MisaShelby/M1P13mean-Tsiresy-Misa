@@ -1,0 +1,157 @@
+<div class="max-w-7xl mx-auto px-4 py-6">
+
+  <!-- Header -->
+  <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+        <mat-icon class="text-indigo-600 text-4xl">analytics</mat-icon>
+        Tableau de Bord Administrateur
+      </h1>
+      <p class="text-gray-500 mt-1">Statistiques et indicateurs de la plateforme</p>
+    </div>
+    <a routerLink="/liste-boutique-admin"
+      class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition shadow-md text-sm">
+      <mat-icon class="text-sm">store</mat-icon>
+      Liste des Boutiques
+    </a>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="flex justify-center items-center py-20">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-indigo-500 border-solid border-gray-200"></div>
+    <span class="ml-4 text-gray-500 text-lg">Chargement des statistiques...</span>
+  </div>
+
+  <div *ngIf="!loading && stats">
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+      <div class="bg-white rounded-xl shadow p-4 border-l-4 border-indigo-500">
+        <div class="flex items-center gap-2 text-sm text-gray-500">
+          <mat-icon class="text-indigo-400 text-lg">store</mat-icon> Boutiques
+        </div>
+        <div class="text-2xl font-bold text-gray-800 mt-1">{{ stats.compteurs.total_boutiques }}</div>
+        <div class="text-xs text-green-600 mt-1">{{ stats.compteurs.boutiques_validees }} actives</div>
+      </div>
+      <div class="bg-white rounded-xl shadow p-4 border-l-4 border-blue-500">
+        <div class="flex items-center gap-2 text-sm text-gray-500">
+          <mat-icon class="text-blue-400 text-lg">inventory_2</mat-icon> Produits
+        </div>
+        <div class="text-2xl font-bold text-gray-800 mt-1">{{ stats.compteurs.total_produits }}</div>
+        <div class="text-xs text-green-600 mt-1">{{ stats.compteurs.produits_actifs }} actifs</div>
+      </div>
+      <div class="bg-white rounded-xl shadow p-4 border-l-4 border-amber-500">
+        <div class="flex items-center gap-2 text-sm text-gray-500">
+          <mat-icon class="text-amber-400 text-lg">shopping_cart</mat-icon> Commandes
+        </div>
+        <div class="text-2xl font-bold text-gray-800 mt-1">{{ stats.compteurs.total_commandes }}</div>
+      </div>
+      <div class="bg-white rounded-xl shadow p-4 border-l-4 border-green-500">
+        <div class="flex items-center gap-2 text-sm text-gray-500">
+          <mat-icon class="text-green-400 text-lg">payments</mat-icon> CA Total
+        </div>
+        <div class="text-2xl font-bold text-gray-800 mt-1">{{ formatMontant(stats.compteurs.chiffre_affaires_total) }}</div>
+      </div>
+      <div class="bg-white rounded-xl shadow p-4 border-l-4 border-purple-500">
+        <div class="flex items-center gap-2 text-sm text-gray-500">
+          <mat-icon class="text-purple-400 text-lg">account_balance_wallet</mat-icon> Moy. Portefeuille
+        </div>
+        <div class="text-2xl font-bold text-gray-800 mt-1">{{ formatMontant(stats.compteurs.moyenne_portefeuille) }}</div>
+      </div>
+    </div>
+
+    <!-- Boutiques en attente alert -->
+    <div *ngIf="stats.compteurs.boutiques_en_attente > 0"
+      class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-8 flex items-center gap-3">
+      <mat-icon class="text-yellow-500 text-2xl">warning</mat-icon>
+      <div>
+        <span class="font-semibold text-yellow-800">{{ stats.compteurs.boutiques_en_attente }}</span>
+        <span class="text-yellow-700"> boutique(s) en attente de validation</span>
+      </div>
+    </div>
+
+    <!-- Row 1: Statut Boutiques + Commandes par Statut + Produits par Type -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-5">
+        <h3 class="text-sm font-semibold text-gray-500 uppercase mb-4 flex items-center gap-2">
+          <mat-icon class="text-indigo-400 text-lg">pie_chart</mat-icon>
+          Statut des Boutiques
+        </h3>
+        <p-chart type="doughnut" [data]="statutBoutiquesData" [options]="statutBoutiquesOptions" [style]="{'width': '100%'}" />
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-5">
+        <h3 class="text-sm font-semibold text-gray-500 uppercase mb-4 flex items-center gap-2">
+          <mat-icon class="text-blue-400 text-lg">donut_large</mat-icon>
+          Commandes par Statut
+        </h3>
+        <p-chart type="pie" [data]="commandesStatutData" [options]="commandesStatutOptions" [style]="{'width': '100%'}" />
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-5">
+        <h3 class="text-sm font-semibold text-gray-500 uppercase mb-4 flex items-center gap-2">
+          <mat-icon class="text-purple-400 text-lg">category</mat-icon>
+          Produits par Type
+        </h3>
+        <p-chart type="polarArea" [data]="produitsTypeData" [options]="produitsTypeOptions" [style]="{'width': '100%'}" />
+      </div>
+    </div>
+
+    <!-- Row 2: Commandes par Mois (Line) -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-5 mb-8">
+      <h3 class="text-sm font-semibold text-gray-500 uppercase mb-4 flex items-center gap-2">
+        <mat-icon class="text-indigo-400 text-lg">show_chart</mat-icon>
+        Évolution des Commandes (12 derniers mois)
+      </h3>
+      <p-chart type="line" [data]="commandesMoisData" [options]="commandesMoisOptions" [style]="{'width': '100%', 'height': '300px'}" />
+    </div>
+
+    <!-- Row 3: CA par Mois (Bar) -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-5 mb-8">
+      <h3 class="text-sm font-semibold text-gray-500 uppercase mb-4 flex items-center gap-2">
+        <mat-icon class="text-green-400 text-lg">bar_chart</mat-icon>
+        Chiffre d'Affaires Mensuel (12 derniers mois)
+      </h3>
+      <p-chart type="bar" [data]="caMoisData" [options]="caMoisOptions" [style]="{'width': '100%', 'height': '300px'}" />
+    </div>
+
+    <!-- Row 4: Top Boutiques -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-5">
+        <h3 class="text-sm font-semibold text-gray-500 uppercase mb-4 flex items-center gap-2">
+          <mat-icon class="text-indigo-400 text-lg">leaderboard</mat-icon>
+          Top 10 - Boutiques par Produits
+        </h3>
+        <p-chart type="bar" [data]="topProduitsData" [options]="topProduitsOptions" [style]="{'width': '100%', 'height': '300px'}" />
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-5">
+        <h3 class="text-sm font-semibold text-gray-500 uppercase mb-4 flex items-center gap-2">
+          <mat-icon class="text-green-400 text-lg">trending_up</mat-icon>
+          Top 10 - Boutiques par CA
+        </h3>
+        <p-chart type="bar" [data]="topCAData" [options]="topCAOptions" [style]="{'width': '100%', 'height': '300px'}" />
+      </div>
+    </div>
+
+    <!-- Row 5: Top Commandes + Abonnements -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-5">
+        <h3 class="text-sm font-semibold text-gray-500 uppercase mb-4 flex items-center gap-2">
+          <mat-icon class="text-amber-400 text-lg">local_shipping</mat-icon>
+          Top 10 - Boutiques par Commandes
+        </h3>
+        <p-chart type="bar" [data]="topCommandesData" [options]="topCommandesOptions" [style]="{'width': '100%', 'height': '300px'}" />
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-5">
+        <h3 class="text-sm font-semibold text-gray-500 uppercase mb-4 flex items-center gap-2">
+          <mat-icon class="text-purple-400 text-lg">card_membership</mat-icon>
+          Répartition des Abonnements
+        </h3>
+        <p-chart type="doughnut" [data]="abonnementsData" [options]="abonnementsOptions" [style]="{'width': '100%'}" />
+      </div>
+    </div>
+
+  </div>
+</div>
