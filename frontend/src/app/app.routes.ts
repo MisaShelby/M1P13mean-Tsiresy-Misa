@@ -30,8 +30,7 @@ export const routes: Routes = [
     { path: 'inscription', component: Inscription },
     {
         path: 'test',
-        component: DashboardComponent,
-        canActivate: [boutiqueAuthGuard]
+        component: DashboardComponent
     },
     {
         path: 'validation-isncri-boutique',
@@ -59,5 +58,5 @@ export const routes: Routes = [
     { path: 'login-boutique', component: LoginBoutique },
     { path: 'inscription-admin', component: InscriptionAdmin },
     { path: 'login-admin', component: LoginAdmin },
-    { path: '**', redirectTo: '/login' }
+    { path: '**', redirectTo: '/accueil-general' }
 ];
