@@ -12,9 +12,12 @@ import { NotificationService } from '../../../services/notification.service';
     templateUrl: './login_boutique.html',
 })
 export class LoginBoutique {
+    readonly DEFAULT_NOM_BOUTIQUE = 'BoutiqueDemo';
+    readonly DEFAULT_MDP = '123456';
+
     credentials: LoginBoutiqueData = {
-        nom_boutique: '',
-        mdp: ''
+        nom_boutique: this.DEFAULT_NOM_BOUTIQUE,
+        mdp: this.DEFAULT_MDP
     };
     isLoading = false;
     fieldErrors: { [key: string]: string } = {};

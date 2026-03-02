@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 import { AuthService, LoginData } from '../auth.service';
+import { Router, RouterLink } from '@angular/router';
+
+import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../../../services/notification.service';
 
 @Component({
@@ -11,9 +12,12 @@ import { NotificationService } from '../../../services/notification.service';
     templateUrl: './login.html',
 })
 export class Login {
+    readonly DEFAULT_EMAIL = 'client@gmail.com';
+    readonly DEFAULT_MDP = '123456';
+
     credentials: LoginData = {
-        email: '',
-        mdp: '',
+        email: this.DEFAULT_EMAIL,
+        mdp: this.DEFAULT_MDP,
         rememberMe: false
     };
 
@@ -47,7 +51,7 @@ export class Login {
                             this.fieldErrors[error.field] = error.message;
                         });
                     }
-                    
+
                     this.notification.error(
                         response.message || 'Échec de la connexion',
                         'Connexion échouée'

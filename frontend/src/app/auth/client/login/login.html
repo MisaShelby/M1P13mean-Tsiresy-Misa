@@ -15,8 +15,15 @@
                 </div>
             </div>
             <div class="p-8 bg-gray-300">
-                <div *ngIf="fieldErrors['email'] || fieldErrors['mdp']" 
-                     class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+                <!-- Compte démo -->
+                <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-800">
+                    <p class="font-semibold mb-1"><i class="pi pi-info-circle mr-1"></i>Compte de démonstration :</p>
+                    <p>Email : <span class="font-mono font-bold">client&#64;gmail.com</span></p>
+                    <p>Mot de passe : <span class="font-mono font-bold">123456</span></p>
+                </div>
+
+                <div *ngIf="fieldErrors['email'] || fieldErrors['mdp']"
+                    class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">
                     <div *ngIf="fieldErrors['email']">{{ fieldErrors['email'] }}</div>
                     <div *ngIf="fieldErrors['mdp']">{{ fieldErrors['mdp'] }}</div>
                 </div>
@@ -28,9 +35,7 @@
                         </label>
                         <span class="p-input-icon-left w-full block">
                             <i class="pi pi-envelope text-neutral-400"></i>
-                            <input type="email" id="email" name="email"
-                                [(ngModel)]="credentials.email"
-                                required
+                            <input type="email" id="email" name="email" [(ngModel)]="credentials.email" required
                                 [ngClass]="{'border-red-500': hasError('email')}"
                                 class="w-full pl-10 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                                 placeholder="votre.email@exemple.com" />
@@ -43,9 +48,7 @@
                         </label>
                         <span class="p-input-icon-left w-full block">
                             <i class="pi pi-lock text-neutral-400"></i>
-                            <input type="password" id="mdp" name="mdp"
-                                [(ngModel)]="credentials.mdp"
-                                required
+                            <input type="password" id="mdp" name="mdp" [(ngModel)]="credentials.mdp" required
                                 [ngClass]="{'border-red-500': hasError('mdp')}"
                                 class="w-full pl-10 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                                 placeholder="••••••••" />
@@ -61,7 +64,8 @@
                                 Se souvenir de moi
                             </label>
                         </div>
-                        <a href="#" class="text-sm text-primary-500 hover:text-primary-600 font-medium transition-colors">
+                        <a href="#"
+                            class="text-sm text-primary-500 hover:text-primary-600 font-medium transition-colors">
                             Mot de passe oublié ?
                         </a>
                     </div>

@@ -10,6 +10,8 @@ const authRoutes = require('./routes/routes');
 const connectDB = require('./config/db.config');
 const CommissionType = require('./models/CommissionType');
 const Admin = require('./models/userAdminModel');
+const UserClient = require('./models/userClientModel');
+const Boutique = require('./models/userBoutiqueModel');
 
 let isConnected = false;
 let connectionPromise = null;
@@ -32,6 +34,34 @@ async function startServer() {
                   });
                   console.log('Admin par défaut créé avec succès');
             }
+
+            const clientExists = await UserClient.findOne({ email: 'client@gmail.com' });
+            if (!clientExists) {
+                  await UserClient.create({
+                        nom_complet: 'Client Demo',
+                        email: 'client@gmail.com',
+                        telephone: '0340000011',
+                        mdp: '123456'
+                  });
+                  console.log('Client par défaut créé avec succès');
+            }
+
+            const boutiqueExists = await Boutique.findOne({ nom_boutique: 'BoutiqueDemo' });
+            if (!boutiqueExists) {
+                  const gratuitCommission = await CommissionType.findOne({ nom: 'Gratuit' });
+                  await Boutique.create({
+                        nom_boutique: 'BoutiqueDemo',
+                        email: 'boutique@gmail.com',
+                        nom_gerant: 'Gérant Demo',
+                        telephone_gerant: '0340000022',
+                        mdp: '123456',
+                        statut_demande: 1,
+                        statut_general: 1,
+                        commission_type: gratuitCommission ? gratuitCommission._id : undefined
+                  });
+                  console.log('Boutique par défaut créée avec succès');
+            }
+
             isConnected = true;
       }
 }
