@@ -2,13 +2,14 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
       try {
-            const conn = await mongoose.connect(
-                  process.env.MONGODB_URI
-            );
+            const uri = process.env.NODE_ENV === 'development'
+                  ? process.env.MONGODB_URI_LOCAL
+                  : process.env.MONGODB_URI;
+            const conn = await mongoose.connect(uri);
             return conn;
       } catch (error) {
             console.error(`MongoDB Connection Error: ${error.message}`);
-            throw error; // Ne pas appeler process.exit() → crash serverless Vercel
+            throw error;
       }
 };
 
@@ -24,7 +25,6 @@ mongoose.connection.on('disconnected', () => {
       console.log('Événement : MongoDB déconnecté');
 });
 
-// SIGINT uniquement en local (non disponible en serverless)
 if (process.env.NODE_ENV !== 'production') {
       process.on('SIGINT', async () => {
             await mongoose.connection.close();

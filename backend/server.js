@@ -9,6 +9,7 @@ const mongoose = require('mongoose');
 const authRoutes = require('./routes/routes');
 const connectDB = require('./config/db.config');
 const CommissionType = require('./models/CommissionType');
+const Admin = require('./models/userAdminModel');
 
 let isConnected = false;
 let connectionPromise = null;
@@ -20,6 +21,16 @@ async function startServer() {
             if (!exists) {
                   await CommissionType.create({ nom: 'Gratuit', tarif: 0, description: 'Plan gratuit' });
                   console.log('Commission "Gratuit" créée avec succès');
+            }
+            const adminExists = await Admin.findOne({ email: 'admin@gmail.com' });
+            if (!adminExists) {
+                  await Admin.create({
+                        nom_complet: 'Administrateur',
+                        email: 'admin@gmail.com',
+                        telephone: '0340567890',
+                        mdp: '123456789'
+                  });
+                  console.log('Admin par défaut créé avec succès');
             }
             isConnected = true;
       }
@@ -38,8 +49,15 @@ app.use(async (req, res, next) => {
       }
 });
 
+const allowedOrigins = (process.env.FRONTEND_URL || '').split(',').map(o => o.trim());
 app.use(cors({
-      origin: process.env.FRONTEND_URL,
+      origin: (origin, callback) => {
+            if (!origin || allowedOrigins.includes(origin)) {
+                  callback(null, true);
+            } else {
+                  callback(new Error('Not allowed by CORS: ' + origin));
+            }
+      },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization']
