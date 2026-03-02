@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
+
 import { AuthBoutiqueService } from '../../auth/boutique/auth_boutique.service';
+import { HttpClient } from '@angular/common/http';
 import { PorteFeuilleBoutique } from '../porte-feuille-boutique/porte-feuille-boutique';
+import { environment } from '../../../environments/environment';
 
 export interface Paiement {
     _id: string;
@@ -48,7 +50,7 @@ export class MonAbonnementComponent implements OnInit {
     selectedPlanId: string | null = null;
     showChangePlanSection = false;
     showPortefeuille = false;
-    private apiUrl = 'http://mean-local.wip:8888/auth';
+    private apiUrl = `${environment.apiUrl}/auth`;
 
     constructor(
         private http: HttpClient,
@@ -103,7 +105,7 @@ export class MonAbonnementComponent implements OnInit {
 
     selectPlan(planId: string): void {
         if (this.abonnement && this.abonnement.id_commission_type._id === planId) {
-            return; 
+            return;
         }
         this.selectedPlanId = planId;
         this.changeError = null;

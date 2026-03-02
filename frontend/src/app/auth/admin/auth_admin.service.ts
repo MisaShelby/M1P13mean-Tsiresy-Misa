@@ -2,6 +2,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { environment } from '../../../environments/environment';
 import { tap } from 'rxjs/operators';
 
 export interface Admin {
@@ -42,7 +43,7 @@ export interface AuthResponse {
     providedIn: 'root'
 })
 export class AuthAdminService {
-    private apiUrl = 'http://mean-local.wip:8888/auth';
+    private apiUrl = `${environment.apiUrl}/auth`;
     private currentAdminSubject = new BehaviorSubject<Admin | null>(null);
     public currentAdmin$ = this.currentAdminSubject.asObservable();
 

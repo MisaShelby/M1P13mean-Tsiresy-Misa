@@ -7,6 +7,36 @@ const app = express();
 const PORT = process.env.PORT;
 const mongoose = require('mongoose');
 const authRoutes = require('./routes/routes');
+const connectDB = require('./config/db.config');
+const CommissionType = require('./models/CommissionType');
+
+let isConnected = false;
+let connectionPromise = null;
+
+async function startServer() {
+      if (!isConnected) {
+            await connectDB();
+            const exists = await CommissionType.findOne({ nom: 'Gratuit' });
+            if (!exists) {
+                  await CommissionType.create({ nom: 'Gratuit', tarif: 0, description: 'Plan gratuit' });
+                  console.log('Commission "Gratuit" créée avec succès');
+            }
+            isConnected = true;
+      }
+}
+
+app.use(async (req, res, next) => {
+      try {
+            if (!connectionPromise) {
+                  connectionPromise = startServer();
+            }
+            await connectionPromise;
+            next();
+      } catch (err) {
+            console.error('Erreur connexion DB:', err.message);
+            res.status(503).json({ error: 'Service indisponible - connexion DB échouée' });
+      }
+});
 
 app.use(cors({
       origin: process.env.FRONTEND_URL,
@@ -18,6 +48,7 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use('/auth', authRoutes);
+
 app.get('/test', (req, res) => {
       const mongoStatus = mongoose.connection.readyState;
       let mongoMessage = '';
@@ -44,24 +75,17 @@ app.get('/test', (req, res) => {
             }
       });
 });
-const connectDB = require('./config/db.config');
-const CommissionType = require('./models/CommissionType');
 
-async function seedCommissionGratuit() {
-      const exists = await CommissionType.findOne({ nom: 'Gratuit' });
-      if (!exists) {
-            await CommissionType.create({
-                  nom: 'Gratuit',
-                  tarif: 0,
-                  description: 'Plan gratuit'
+
+if (require.main === module) {
+      startServer().then(() => {
+            app.listen(PORT, () => {
+                  console.log(`Serveur démarré sur le port ${PORT}`);
             });
-            console.log('Commission "Gratuit" créée avec succès');
-      }
+      }).catch((error) => {
+            console.error('Erreur de démarrage:', error);
+            process.exit(1);
+      });
 }
 
-connectDB().then(async () => {
-      await seedCommissionGratuit();
-      app.listen(PORT);
-}).catch((error) => {
-      process.exit(1);
-});
+module.exports = app;

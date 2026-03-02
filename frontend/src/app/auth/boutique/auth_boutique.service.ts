@@ -2,6 +2,7 @@ import { BehaviorSubject, Observable, tap } from "rxjs";
 
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import { environment } from '../../../environments/environment';
 
 export interface Boutique {
     _id: string;
@@ -54,7 +55,7 @@ export interface AuthResponse {
 })
 
 export class AuthBoutiqueService {
-    private apiUrl = 'http://mean-local.wip:8888/auth';
+    private apiUrl = `${environment.apiUrl}/auth`;
     private currentBoutiqueSubject = new BehaviorSubject<Boutique | null>(null);
     public currentBoutique$ = this.currentBoutiqueSubject.asObservable();
 
@@ -120,7 +121,7 @@ export class AuthBoutiqueService {
 
     isAuthenticated(): boolean {
         const token = this.getToken();
-        
+
 
         if (!token) {
             console.log('❌ Pas de token trouvé');
@@ -156,7 +157,7 @@ export class AuthBoutiqueService {
             try {
                 const boutique = JSON.parse(boutiqueStr);
                 this.currentBoutiqueSubject.next(boutique);
-            } catch (e) {}
+            } catch (e) { }
         }
     }
 

@@ -1,8 +1,10 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+
+import { AuthBoutiqueService } from '../../auth/boutique/auth_boutique.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { AuthBoutiqueService } from '../../auth/boutique/auth_boutique.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'app-porte-feuille-boutique',
@@ -21,7 +23,7 @@ export class PorteFeuilleBoutique {
 
     montantsRapides = [5000, 10000, 25000, 50000, 100000];
 
-    private apiUrl = 'http://mean-local.wip:8888/auth';
+    private apiUrl = `${environment.apiUrl}/auth`;
 
     constructor(
         private http: HttpClient,

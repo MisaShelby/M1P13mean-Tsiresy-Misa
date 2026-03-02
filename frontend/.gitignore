@@ -26,3 +26,4 @@ backend/.env
 # System
 .DS_Store
 Thumbs.db
+.vercel

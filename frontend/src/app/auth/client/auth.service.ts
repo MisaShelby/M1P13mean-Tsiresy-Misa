@@ -2,6 +2,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { environment } from '../../../environments/environment';
 import { tap } from 'rxjs/operators';
 
 export interface User {
@@ -42,7 +43,7 @@ export interface AuthResponse {
     providedIn: 'root'
 })
 export class AuthService {
-    private apiUrl = 'http://mean-local.wip:8888/auth';
+    private apiUrl = `${environment.apiUrl}/auth`;
     private currentUserSubject = new BehaviorSubject<User | null>(null);
     public currentUser$ = this.currentUserSubject.asObservable();
 

@@ -1,4 +1,15 @@
 node_modules
-node_modules
-node_modules
 .vscode/
+
+# Variables d'environnement (ne jamais committer)
+.env
+.env.local
+.env.production
+
+# Build Angular
+frontend/dist/
+frontend/.angular/
+
+# Logs
+*.log
+npm-debug.log*
